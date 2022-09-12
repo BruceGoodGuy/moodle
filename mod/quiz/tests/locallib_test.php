@@ -755,4 +755,21 @@ class locallib_test extends \advanced_testcase {
             quoted_printable_decode($message->body));
         $sink->close();
     }
+
+    /**
+     * Test quiz_has_random_question function.
+     *
+     * @covers quiz_has_random_question
+     */
+    public function test_quiz_has_random_question() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Set up quiz with 2 standard question (slot 1 and 2) and 1 random question (slot 3).
+        list($quiz) = $this->setup_quiz_and_tags(2, 1, [], []);
+
+        $this->assertEquals(true, quiz_has_random_question($quiz, 3));
+        $this->assertEquals(false, quiz_has_random_question($quiz, 1));
+        $this->assertEquals(false, quiz_has_random_question($quiz, 2));
+    }
 }

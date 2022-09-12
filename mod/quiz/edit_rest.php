@@ -156,7 +156,8 @@ switch($requestmethod) {
                         foreach ($ids as $id) {
                             $slot = $DB->get_record('quiz_slots', array('quizid' => $quiz->id, 'id' => $id),
                                     '*', MUST_EXIST);
-                            if (quiz_has_question_use($quiz, $slot->slot)) {
+                            if (quiz_has_question_use($quiz, $slot->slot) ||
+                                    quiz_has_random_question($quiz, $slot->slot)) {
                                 $structure->remove_slot($slot->slot);
                             }
                         }

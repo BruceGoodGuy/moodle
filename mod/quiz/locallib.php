@@ -2274,6 +2274,25 @@ function quiz_has_question_use($quiz, $slot) {
 }
 
 /**
+ * Verify that the random question exists.
+ * @param object $quiz the quiz settings.
+ * @param int $slot which question in the quiz to test.
+ * @return bool whether the user can use this question.
+ */
+function quiz_has_random_question(object $quiz, int $slot) {
+    global $DB;
+
+    $sql = 'SELECT qsr.id
+              FROM {question_set_references} qsr
+              JOIN {quiz_slots} qs ON qs.id = qsr.itemid
+             WHERE qs.quizid = ?
+               AND qs.slot = ?
+               AND qsr.component = ?
+               AND qsr.questionarea = ?';
+    return $DB->record_exists_sql($sql, [$quiz->id, $slot, 'mod_quiz', 'slot']);
+}
+
+/**
  * Add a question to a quiz
  *
  * Adds a question to a quiz by updating $quiz as well as the
