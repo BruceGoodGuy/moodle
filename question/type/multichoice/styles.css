@@ -22,6 +22,28 @@
     background: #fff3bf;
 }
 
+.que.multichoice .answer .r0 .specificfeedback,
+.que.multichoice .answer .r1 .specificfeedback {
+    margin-bottom: 8px;
+}
+
+.que.multichoice .answer .r0 i.icon,
+.que.multichoice .answer .r1 i.icon {
+    margin-top: 2.5px;
+}
+
+.que.multichoice .answer .r0 input[type="radio"],
+.que.multichoice .answer .r1 input[type="radio"],
+.que.multichoice .answer .r0 input[type="checkbox"],
+.que.multichoice .answer .r1 input[type="checkbox"] {
+    max-height: 12px;
+}
+
+.que.multichoice .answer .r0.partiallycorrect i.icon,
+.que.multichoice .answer .r1.partiallycorrect i.icon {
+    margin-top: 1.5px;
+}
+
 /* Editing form. */
 body#page-question-type-multichoice div[id^=fitem_id_][id*=answer_] {
     background: #eee;
