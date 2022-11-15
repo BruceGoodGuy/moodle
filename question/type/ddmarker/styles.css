@@ -231,3 +231,11 @@ body#page-question-type-ddmarker #fitem_id_penalty {
 body#page-question-type-ddmarker .ddarea.que.ddmarker {
     overflow-y: scroll;
 }
+
+.que.ddmarker .formulation .ddarea .draghomes .marker .markertext,
+.que.ddmarker .formulation .ddarea .droparea .marker .markertext,
+.que.ddmarker .formulation .ddarea .draghomes .marker img.icon,
+.que.ddmarker .formulation .ddarea .droparea .marker img.icon {
+    -webkit-user-select: none;
+    user-select: none;
+}

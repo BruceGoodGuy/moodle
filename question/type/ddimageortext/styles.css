@@ -201,3 +201,9 @@ body#page-question-type-ddimageortext div[id^=fitem_id_][id*=draglabel_] {
     border: 1px solid #bbb;
     border-top: 0;
 }
+
+.que.ddimageortext .formulation .draghomes .draghome,
+.que.ddimageortext .formulation .droparea .dropzones .draghome {
+    -webkit-user-select: none;
+    user-select: none;
+}

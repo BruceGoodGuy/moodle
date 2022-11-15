@@ -126,3 +126,9 @@
 .que.ddwtos sub {
     bottom: -0.2em;
 }
+
+.que.ddwtos .formulation .answercontainer > div,
+.que.ddwtos .formulation .qtext span.draghome {
+    -webkit-user-select: none;
+    user-select: none;
+}
