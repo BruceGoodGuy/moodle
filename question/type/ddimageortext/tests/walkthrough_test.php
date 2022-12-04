@@ -863,9 +863,11 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         // Check the initial state.
         $this->check_current_state(question_state::$todo);
         $this->check_current_mark(null);
+        $patternchoice1 = '~<div class="group1 draghome user-select-none choice1"><span lang="fr">la</span></div>~';
+        $patternchoice2 = '~<div class="group1 draghome user-select-none choice2"><span lang="fr">ma</span></div>~';
         $this->check_current_output(
-                new \question_pattern_expectation('~<div class="group1 draghome choice1"><span lang="fr">la</span></div>~'),
-                new \question_pattern_expectation('~<div class="group1 draghome choice2"><span lang="fr">ma</span></div>~')
+            new \question_pattern_expectation($patternchoice1),
+            new \question_pattern_expectation($patternchoice2)
         );
     }
 }
