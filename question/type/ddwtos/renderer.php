@@ -43,7 +43,7 @@ class qtype_ddwtos_renderer extends qtype_elements_embedded_in_question_text_ren
 
         $this->page->requires->js_call_amd('qtype_ddwtos/ddwtos', 'init',
                 [$qa->get_outer_question_div_unique_id(), $options->readonly]);
-        return $result;
+        return preg_replace("/[\n\r]/", "", $result);
     }
 
     protected function post_qtext_elements(question_attempt $qa,

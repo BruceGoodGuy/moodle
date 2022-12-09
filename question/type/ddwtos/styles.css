@@ -127,6 +127,8 @@
     bottom: -0.2em;
 }
 
-.que.ddwtos .formulation .qtext p {
-    white-space: pre-line;
+@media (max-width: 767.98px) {
+    .que.ddwtos .formulation .qtext {
+        white-space: pre-line;
+    }
 }
