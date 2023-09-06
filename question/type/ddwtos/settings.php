@@ -15,21 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the drag-and-drop words into sentences question type.
+ * Admin settings and defaults
  *
- * @package   qtype_ddwtos
- * @copyright 2011 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package qtype_ddwtos
+ * @copyright 2023 The Open University
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2023110600;
-$plugin->requires  = 2023100400;
-
-$plugin->component = 'qtype_ddwtos';
-$plugin->maturity  = MATURITY_STABLE;
-
-$plugin->dependencies = [
-    'qtype_gapselect' => 2023100400,
-];
+if ($hassiteconfig) {
+    $settings->add(new admin_setting_pickfilters('qtype_ddwtos/enablefilters',
+        get_string('enablefilters', 'qtype_ddwtos'),
+        get_string('enablefilters_desc', 'qtype_ddwtos'), ['mathjaxloader' => 1]));
+}
