@@ -36,6 +36,31 @@ export const initSubmitButton = button => {
 };
 
 /**
+ * Allow check button to pass value to form.
+ *
+ * @param {string} elementId the id of the button in the HTML.
+ */
+export const initCheckButton = elementId => {
+    const button = document.getElementById(elementId);
+    button.addEventListener('click', function(event) {
+        document.getElementById("checkedslot").value = event.target.dataset.slot;
+    });
+};
+
+/**
+ * Focus the feedback.
+ */
+export const focusFeedback = () => {
+    // Wait for the window to load, then focus the feedback.
+    window.onload = function() {
+        let describedfeedback = document.getElementById("describedfeedback");
+        if (describedfeedback) {
+            describedfeedback.focus();
+        }
+    };
+};
+
+/**
  * Initialise a form that contains questions printed using print_question.
  * This has the effect of:
  * 1. Turning off browser autocomlete.

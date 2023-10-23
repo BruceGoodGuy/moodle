@@ -947,6 +947,23 @@ class question_attempt {
     }
 
     /**
+     * Alert the feedback for screen reader.
+     *
+     * @param question_display_options $options controls how the question is rendered.
+     * @return array
+     */
+    public function display_aria_describedby_feedback_attribute(question_display_options $options): array {
+        if ($options->describedfeedback == $this->get_slot()) {
+            return [
+                'aria-describedby' => 'specificfeedback generalfeedback rightanswer',
+                'id' => 'describedfeedback',
+                'tabindex' => '0',
+            ];
+        }
+        return [];
+    }
+
+    /**
      * Checks whether the users is allow to be served a particular file.
      * @param question_display_options $options the options that control display of the question.
      * @param string $component the name of the component we are serving files for.

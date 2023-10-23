@@ -659,6 +659,11 @@ class question_display_options {
     public ?bool $versioninfo = null;
 
     /**
+     * @var int whether we should alert the feedback for screen reader.
+     */
+    public $describedfeedback = null;
+
+    /**
      * Set all the feedback-related fields {@link $feedback}, {@link generalfeedback},
      * {@link rightanswer} and {@link manualcomment} to
      * {@link question_display_options::HIDDEN}.

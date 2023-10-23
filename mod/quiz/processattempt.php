@@ -47,6 +47,7 @@ $finishattempt = optional_param('finishattempt', false, PARAM_BOOL);
 $timeup        = optional_param('timeup',        0,      PARAM_BOOL); // True if form was submitted by timer.
 $mdlscrollto   = optional_param('mdlscrollto', '', PARAM_RAW);
 $cmid          = optional_param('cmid', null, PARAM_INT);
+$checkedslot   = optional_param('checkedslot', 0, PARAM_INT);
 
 $attemptobj = quiz_create_attempt_handling_errors($attemptid, $cmid);
 
@@ -65,6 +66,9 @@ if ($page == -1) {
     if ($mdlscrollto !== '') {
         $nexturl->param('mdlscrollto', $mdlscrollto);
     }
+}
+if ($checkedslot) {
+    $nexturl->param('checkslot', $checkedslot);
 }
 
 // Check login.

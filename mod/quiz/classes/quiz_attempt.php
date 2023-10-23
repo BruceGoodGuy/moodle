@@ -94,6 +94,9 @@ class quiz_attempt {
     /** @var display_options cache for the appropriate review options. */
     protected $reviewoptions = null;
 
+    /** @var int question slot are being checked */
+    protected $checkedslot = null;
+
     // Constructor =============================================================.
     /**
      * Constructor assuming we already have the necessary data loaded.
@@ -1319,7 +1322,7 @@ class quiz_attempt {
         $originalslot = $this->get_original_slot($slot);
         $number = $this->get_question_number($originalslot);
         $displayoptions = $this->get_display_options_with_edit_link($reviewing, $slot, $thispageurl);
-
+        $displayoptions->describedfeedback = $this->get_checked_slot();
         if ($slot != $originalslot) {
             $originalmaxmark = $this->get_question_attempt($slot)->get_max_mark();
             $this->get_question_attempt($slot)->set_max_mark($this->get_question_attempt($originalslot)->get_max_mark());
@@ -2330,5 +2333,23 @@ class quiz_attempt {
             }
         }
         return $totalunanswered;
+    }
+
+    /**
+     * Update the slot number for the question that is being checked.
+     *
+     * @param int $slot
+     */
+    public function set_checked_slot(int $slot): void {
+        $this->checkedslot = $slot;
+    }
+
+    /**
+     * Get the slot number of the question being checked.
+     *
+     * @return int|null
+     */
+    public function get_checked_slot(): ?int {
+        return $this->checkedslot;
     }
 }

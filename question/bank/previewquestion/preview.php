@@ -105,8 +105,14 @@ if ($previewid) {
     if ($quba->get_owning_context()->instanceid != $USER->id) {
         throw new moodle_exception('notyourpreview', 'question');
     }
-
+    $feedback = optional_param('feedback', 0, PARAM_INT);
+    $generalfeedback = optional_param('generalfeedback', 0, PARAM_INT);
+    $rightanswer = optional_param('rightanswer', 0, PARAM_INT);
     $slot = $quba->get_first_question_number();
+    $options->describedfeedback = $slot;
+    if ($options->describedfeedback && ($feedback || $generalfeedback || $rightanswer)) {
+        $PAGE->requires->js_call_amd('core_question/question_engine', 'focusFeedback');
+    }
     $usedquestion = $quba->get_question($slot, false);
     if ($usedquestion->id != $question->id) {
         throw new moodle_exception('questionidmismatch', 'question');

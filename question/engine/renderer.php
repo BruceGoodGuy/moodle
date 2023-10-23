@@ -427,13 +427,14 @@ class core_question_renderer extends plugin_renderer_base {
      */
     protected function outcome(question_attempt $qa, qbehaviour_renderer $behaviouroutput,
             qtype_renderer $qtoutput, question_display_options $options) {
+        $attributes = $qa->display_aria_describedby_feedback_attribute($options);
         $output = '';
         $output .= html_writer::nonempty_tag('div',
-                $qtoutput->feedback($qa, $options), array('class' => 'feedback'));
+                $qtoutput->feedback($qa, $options), array_merge($attributes, ['class' => 'feedback']));
         $output .= html_writer::nonempty_tag('div',
-                $behaviouroutput->feedback($qa, $options), array('class' => 'im-feedback'));
+                $behaviouroutput->feedback($qa, $options), array_merge($attributes, ['class' => 'im-feedback']));
         $output .= html_writer::nonempty_tag('div',
-                $options->extrainfocontent, array('class' => 'extra-feedback'));
+                $options->extrainfocontent, array_merge($attributes, ['class' => 'extra-feedback']));
         return $output;
     }
 

@@ -567,6 +567,12 @@ class renderer extends plugin_renderer_base {
                 'value' => sesskey()]);
         $output .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'mdlscrollto',
                 'value' => '', 'id' => 'mdlscrollto']);
+        $output .= html_writer::empty_tag('input', [
+            'type' => 'hidden',
+            'name' => 'checkedslot',
+            'value' => '',
+            'id' => 'checkedslot',
+        ]);
 
         // Add a hidden field with questionids. Do this at the end of the form, so
         // if you navigate before the form has finished loading, it does not wipe all

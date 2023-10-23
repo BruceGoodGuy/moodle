@@ -473,10 +473,11 @@ class qtype_multianswer_multichoice_vertical_renderer extends qtype_multianswer_
             $result .= $feedbackimg;
 
             if ($options->feedback && $isselected && trim($ans->feedback)) {
+                $feedbackattributes = $qa->display_aria_describedby_feedback_attribute($options);
                 $result .= html_writer::tag('div',
                         $subq->format_text($ans->feedback, $ans->feedbackformat,
                                 $qa, 'question', 'answerfeedback', $ansid),
-                        array('class' => 'specificfeedback'));
+                        array_merge($feedbackattributes, ['class' => 'specificfeedback']));
             }
 
             $result .= $this->choice_wrapper_end();
@@ -665,10 +666,11 @@ class qtype_multianswer_multiresponse_vertical_renderer extends qtype_multianswe
             $result .= $feedbackimg;
 
             if ($options->feedback && $isselected && trim($ans->feedback)) {
+                $feedbackattributes = $qa->display_aria_describedby_feedback_attribute($options);
                 $result .= html_writer::tag('div',
                                             $subq->format_text($ans->feedback, $ans->feedbackformat,
                                                                $qa, 'question', 'answerfeedback', $ansid),
-                                            array('class' => 'specificfeedback'));
+                                                                array_merge($feedbackattributes, ['class' => 'specificfeedback']));
             }
 
             $result .= $this->choice_wrapper_end();

@@ -1,5 +1,9 @@
 This files describes API changes for code that uses the question API.
 
+=== 4.4 ===
+1) A new method display_aria_describedby_feedback_attribute has been created in question_attempt
+   to allow screen reader read the feedback of the question.
+
 === 4.3 ===
 
 1) The core_question_generator::update_question has been changed so that it no longer modifies the $question

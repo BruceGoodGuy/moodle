@@ -530,4 +530,24 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
                 $this->get_tries_remaining_expectation(2),
                 $this->get_contains_try_again_button_expectation(false));
     }
+
+    /**
+     * Test interactive behaviour of the feedback.
+     *
+     * @covers \question_behaviour::render
+     */
+    public function test_interactive_feedback_with_aria_described(): void {
+        $q = \test_question_maker::make_question('shortanswer');
+        $q->hints = [
+            new question_hint_with_parts(0, 'This is the first hint.', FORMAT_HTML, true, true),
+            new question_hint_with_parts(0, 'This is the second hint.', FORMAT_HTML, true, true),
+        ];
+        $this->start_attempt_at_question($q, 'interactive', 3);
+        // Show alert on feedback.
+        $this->displayoptions->describedfeedback = $this->slot;
+        // Submit a wrong answer.
+        $this->process_submission(['answer' => 'cat', '-submit' => 1]);
+        $this->render();
+        $this->check_output_contains('aria-describedby="specificfeedback generalfeedback rightanswer"');
+    }
 }

@@ -123,11 +123,12 @@ abstract class qtype_multichoice_renderer_base extends qtype_with_combined_feedb
             // avoid refering to it here.
             if ($options->feedback && empty($options->suppresschoicefeedback) &&
                     $isselected && trim($ans->feedback)) {
+                $feedbackattributes = $qa->display_aria_describedby_feedback_attribute($options);
                 $feedback[] = html_writer::tag('div',
                         $question->make_html_inline($question->format_text(
                                 $ans->feedback, $ans->feedbackformat,
                                 $qa, 'question', 'answerfeedback', $ansid)),
-                        array('class' => 'specificfeedback'));
+                        array_merge($feedbackattributes, ['class' => 'specificfeedback']));
             } else {
                 $feedback[] = '';
             }

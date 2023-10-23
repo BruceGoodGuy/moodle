@@ -44,14 +44,21 @@ if ($id = optional_param('id', 0, PARAM_INT)) {
 $attemptid = required_param('attempt', PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 $cmid = optional_param('cmid', null, PARAM_INT);
+$describedfeedback = optional_param('checkslot', 0, PARAM_INT);
 
 $attemptobj = quiz_create_attempt_handling_errors($attemptid, $cmid);
+$attemptobj->set_checked_slot($describedfeedback);
 $page = $attemptobj->force_page_number_into_range($page);
 $PAGE->set_url($attemptobj->attempt_url(null, $page));
 // During quiz attempts, the browser back/forwards buttons should force a reload.
 $PAGE->set_cacheable(false);
 
 $PAGE->set_secondary_active_tab("modulepage");
+
+// If the attempt has checked, then we focus the feedback.
+if ($describedfeedback) {
+    $PAGE->requires->js_call_amd('core_question/question_engine', 'focusFeedback');
+}
 
 // Check login.
 require_login($attemptobj->get_course(), false, $attemptobj->get_cm());

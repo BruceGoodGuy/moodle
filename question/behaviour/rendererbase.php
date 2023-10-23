@@ -237,6 +237,7 @@ abstract class qbehaviour_renderer extends plugin_renderer_base {
             'value' => 1,
             'class' => 'submit btn btn-secondary',
             'data-savescrollposition' => 'true',
+            'data-slot' => $qa->get_slot(),
         );
         if ($options->readonly) {
             $attributes['disabled'] = 'disabled';
@@ -245,6 +246,7 @@ abstract class qbehaviour_renderer extends plugin_renderer_base {
             $options->add_question_identifier_to_label(get_string('check', 'question'), true), $attributes);
         if (!$options->readonly) {
             $this->page->requires->js_call_amd('core_question/question_engine', 'initSubmitButton', [$attributes['id']]);
+            $this->page->requires->js_call_amd('core_question/question_engine', 'initCheckButton', [$attributes['id']]);
         }
         return $output;
     }
