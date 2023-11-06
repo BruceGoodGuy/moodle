@@ -26,13 +26,15 @@ define([
     'core/dragdrop',
     'qtype_ddmarker/shapes',
     'core/key_codes',
-    'core_form/changechecker'
+    'core_form/changechecker',
+    'core_filters/events',
 ], function(
     $,
     dragDrop,
     Shapes,
     keys,
-    FormChangeChecker
+    FormChangeChecker,
+    filterEvent
 ) {
 
     "use strict";
@@ -62,6 +64,12 @@ define([
             thisQ.waitForAllImagesToBeLoaded();
         });
         thisQ.waitForAllImagesToBeLoaded();
+        // Wait for all dynamic content loaded by filter to be completed.
+        document.addEventListener(filterEvent.eventTypes.filterContentRenderingComplete, (elements) => {
+            elements.detail.nodes.forEach((element) => {
+                thisQ.changeAllMakerToFilteredContent(element);
+            });
+        });
     }
 
     /**
@@ -784,6 +792,58 @@ define([
         this.cloneDrags();
         this.repositionDrags();
         this.drawDropzones();
+    };
+
+    /**
+     * Change all the maker related to the item that has been changed by filter to correct size and content.
+     *
+     *  @param {object} filteredElement the element has been modified by filter.
+     */
+    DragDropMarkersQuestion.prototype.changeAllMakerToFilteredContent = function(filteredElement) {
+        let currentFilteredItem = $(filteredElement);
+        const parentIsMarker = currentFilteredItem.parent().closest('span.marker');
+        const isMarker = currentFilteredItem.hasClass('marker');
+        const root = this.getRoot();
+        // The filtered element or parent element should a drag or drop item.
+        if (!parentIsMarker && !isMarker) {
+            return;
+        }
+        if (parentIsMarker) {
+            currentFilteredItem = currentFilteredItem.parent().closest('span.marker');
+        }
+        if (root.find(currentFilteredItem).length <= 0) {
+            // If the maker doesn't belong to this question
+            // In case we have multiple questions in the same page.
+            return;
+        }
+        const dragNo = this.getDragNo(currentFilteredItem);
+        const choiceNo = this.getChoiceNoFromElement(currentFilteredItem);
+        const listOfContainerToBeModifed = [
+            'div.draghomes .marker.dragno' + dragNo + '.choice' + choiceNo,
+            'div.droparea .marker.dragno' + dragNo + '.choice' + choiceNo,
+            'div.draghomes .marker.infinite.choice' + choiceNo,
+            'div.droparea .marker.infinite.choice' + choiceNo
+        ];
+        let listOfModifiedDragDrop = [];
+        listOfContainerToBeModifed.forEach(function (selector) {
+            root.find(selector).each(function(i, node) {
+                const originalClass = $(node).attr('class');
+                const originalStyle = $(node).attr('style');
+                // We want to keep all the handler and event for filtered item, so using clone is the only choice.
+                const filteredDragDropClone = currentFilteredItem.clone();
+                // Replace the class and style of the maker we want to replace for the clone.
+                filteredDragDropClone.attr('class', originalClass);
+                filteredDragDropClone.attr('style', originalStyle);
+                // Add event for the clone.
+                questionManager.addEventHandlersToMarker(filteredDragDropClone);
+                // Insert into DOM.
+                $(node).before(filteredDragDropClone);
+                listOfModifiedDragDrop.push(node);
+            });
+        });
+        listOfModifiedDragDrop.forEach(function(node) {
+            $(node).remove();
+        });
     };
 
     /**

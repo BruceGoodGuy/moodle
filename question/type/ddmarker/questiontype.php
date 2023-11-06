@@ -368,4 +368,29 @@ class qtype_ddmarker extends qtype_ddtoimage_base {
         return null;
     }
 
+    /**
+     * Filter the maker content using filters from the config.
+     *
+     * @param $text answer text.
+     * @return string
+     */
+    public static function filter_text(string $text): string {
+        global $PAGE;
+        $filtermanager = filter_manager::instance();
+        $filtermanager->setup_page_for_filters($PAGE, $PAGE->context);
+        $skipfilters = filter_get_active_in_context($PAGE->context);
+        $skipfilters = array_keys($skipfilters);
+
+        if ($enablefilters = get_config('qtype_ddmarker', 'enablefilters')) {
+            $enablefilters = explode(',', $enablefilters);
+            foreach ($enablefilters as $filter) {
+                $foundkey = array_search($filter, $skipfilters);
+                if ($foundkey) {
+                    unset($skipfilters[$foundkey]);
+                }
+            }
+        }
+        return $filtermanager->filter_text($text, $PAGE->context, [], $skipfilters);
+    }
+
 }

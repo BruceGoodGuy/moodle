@@ -51,6 +51,8 @@ For information the three shapes use coordinates in this way:
 * Polygon: x1, y1; x2, y2; ...; xn, yn<br />for example: <code>20,60;100,60;20,100</code>
 
 Selecting a Marker text will add that text to the shape in the preview.';
+$string['enablefilters'] = 'Apply these filters to drag drop content';
+$string['enablefilters_desc'] = 'This setting allows you to set some settings to be applied to drag drop item, even if they are disabled in the Moodle site configuration.';
 $string['formerror_dragrequired'] = 'You must add at least one marker to this question.';
 $string['formerror_droprequired'] = 'You must define at least one drop zone for this question.';
 $string['followingarewrong'] = 'Markers placed in the wrong area: {$a}.';
