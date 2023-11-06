@@ -92,6 +92,7 @@ class qtype_ddtoimage_renderer_base extends qtype_with_combined_feedback_rendere
                     $classes[] = 'infinite';
                 }
                 if ($dragimageurl === null) {
+                    $dragimage->text = qtype_ddimageortext::filter_text($dragimage->text);
                     $dragimagehomesgroup .= html_writer::div($dragimage->text, join(' ', $classes), ['src' => $dragimageurl]);
                 } else {
                     $dragimagehomesgroup .= html_writer::img($dragimageurl, $dragimage->text, ['class' => join(' ', $classes)]);

@@ -15,21 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the drag-and-drop onto image question type.
+ * Admin settings and defaults
  *
- * @package   qtype_ddimageortext
- * @copyright 2011 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package qtype_ddimageortext
+ * @copyright 2023 The Open University
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2023110600;
-$plugin->requires  = 2023100400;
-
-$plugin->component = 'qtype_ddimageortext';
-$plugin->maturity  = MATURITY_STABLE;
-
-$plugin->dependencies = [
-    'qtype_gapselect' => 2023100400,
-];
+if ($hassiteconfig) {
+    $settings->add(new admin_setting_pickfilters('qtype_ddimageortext/enablefilters',
+        get_string('enablefilters', 'qtype_ddimageortext'),
+        get_string('enablefilters_desc', 'qtype_ddimageortext'), ['mathjaxloader' => 1]));
+}

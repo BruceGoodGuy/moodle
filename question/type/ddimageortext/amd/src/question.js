@@ -24,12 +24,14 @@ define([
     'jquery',
     'core/dragdrop',
     'core/key_codes',
-    'core_form/changechecker'
+    'core_form/changechecker',
+    'core_filters/events',
 ], function(
     $,
     dragDrop,
     keys,
-    FormChangeChecker
+    FormChangeChecker,
+    filterEvent
 ) {
 
     "use strict";
@@ -45,6 +47,7 @@ define([
     function DragDropOntoImageQuestion(containerId, readOnly, places) {
         this.containerId = containerId;
         this.questionAnswer = {};
+        this.questionDragDropWidthHeight = [];
         M.util.js_pending('qtype_ddimageortext-init-' + this.containerId);
         this.places = places;
         this.allImagesLoaded = false;
@@ -59,7 +62,75 @@ define([
             thisQ.waitForAllImagesToBeLoaded();
         });
         this.waitForAllImagesToBeLoaded();
+        // Wait for all dynamic content loaded by filter to be completed.
+        document.addEventListener(filterEvent.eventTypes.filterContentRenderingComplete, (elements) => {
+            elements.detail.nodes.forEach((element) => {
+                thisQ.changeAllDragsAndDropsToFilteredContent(element);
+            });
+        });
     }
+
+    /**
+     * Change all the drags and drops related to the item that has been changed by filter to correct size and content.
+     *
+     *  @param {object} filteredElement the element has been modified by filter.
+     */
+    DragDropOntoImageQuestion.prototype.changeAllDragsAndDropsToFilteredContent = function(filteredElement) {
+        let currentFilteredItem = $(filteredElement);
+        const parentIsDD = currentFilteredItem.parent().closest('div').hasClass('placed') ||
+            currentFilteredItem.parent().hasClass('draghome');
+        const isDD = currentFilteredItem.hasClass('placed') || currentFilteredItem.hasClass('draghome');
+        // The filtered element or parent element should a drag or drop item.
+        if (!parentIsDD && !isDD) {
+            return;
+        }
+        if (parentIsDD) {
+            currentFilteredItem = currentFilteredItem.parent().closest('div');
+        }
+        if (this.getRoot().find(currentFilteredItem).length <= 0) {
+            // If the DD item doesn't belong to this question
+            // In case we have multiple questions in the same page.
+            return;
+        }
+        const group = this.getGroup(currentFilteredItem),
+            choice = this.getChoice(currentFilteredItem);
+        let listOfModifiedDragDrop = [];
+
+        // Get the list of drag and drop item within the same group and choice.
+        this.getRoot().find('.group' + group + '.choice' + choice).each(function(i, node) {
+            // Same modified item, skip it.
+            if ($(node).get(0) === currentFilteredItem.get(0)) {
+                return;
+            }
+            const originalClass = $(node).attr('class');
+            // We want to keep all the handler and event for filtered item, so using clone is the only choice.
+            const filteredDragDropClone = currentFilteredItem.clone();
+            // Replace the class of the drag drop item we want to replace for the clone.
+            filteredDragDropClone.attr('class', originalClass);
+            // Insert into DOM.
+            $(node).before(filteredDragDropClone);
+            // Add the item has been replaced to a list so we can remove it later.
+            listOfModifiedDragDrop.push(node);
+        });
+
+        listOfModifiedDragDrop.forEach(function(node) {
+            $(node).remove();
+        });
+        // Save the current height and width.
+        const currentHeight = currentFilteredItem.height();
+        const currentWidth = currentFilteredItem.width();
+        // Set to auto, so we can get the real height and width of the filtered item.
+        currentFilteredItem.height('auto');
+        currentFilteredItem.width('auto');
+        if (this.questionDragDropWidthHeight[group].maxWidth < Math.ceil(filteredElement.offsetWidth) ||
+            this.questionDragDropWidthHeight[group].maxHeight < Math.ceil(0 + filteredElement.offsetHeight)) {
+            // Now resize all the items in the same group if we have new maximum width or height.
+            this.resizeAllDragsAndDropsInGroup(group);
+        } else {
+            currentFilteredItem.height(currentHeight);
+            currentFilteredItem.width(currentWidth);
+        }
+    };
 
     /**
      * Waits until all images are loaded before calling setupQuestion().
@@ -135,7 +206,7 @@ define([
         var thisQ = this;
         this.getRoot().find('.draghomes > div').each(function(i, node) {
             thisQ.resizeAllDragsAndDropsInGroup(
-                    thisQ.getClassnameNumericSuffix($(node), 'dragitemgroup'));
+                thisQ.getClassnameNumericSuffix($(node), 'dragitemgroup'));
         });
     };
 
@@ -159,18 +230,11 @@ define([
         // The size we will want to set is a bit bigger than this.
         maxWidth += 10;
         maxHeight += 10;
+        this.questionDragDropWidthHeight[group] = {maxWidth, maxHeight};
 
         // Set each drag home to that size.
         dragHomes.each(function(i, drag) {
-            var left = Math.round((maxWidth - drag.offsetWidth) / 2),
-                top = Math.floor((maxHeight - drag.offsetHeight) / 2);
-            // Set top and left padding so the item is centred.
-            $(drag).css({
-                'padding-left': left + 'px',
-                'padding-right': (maxWidth - drag.offsetWidth - left) + 'px',
-                'padding-top': top + 'px',
-                'padding-bottom': (maxHeight - drag.offsetHeight - top) + 'px'
-            });
+            $(drag).width(maxWidth).height(maxHeight).css('lineHeight', maxHeight + 'px');
         });
 
         // Create the drops and make them the right size.
@@ -187,8 +251,8 @@ define([
                 label = M.util.get_string('blank', 'qtype_ddimageortext');
             }
             root.find('.dropzones').append('<div class="dropzone active group' + place.group +
-                            ' place' + i + '" tabindex="0">' +
-                    '<span class="accesshide">' + label + '</span>&nbsp;</div>');
+                ' place' + i + '" tabindex="0">' +
+                '<span class="accesshide">' + label + '</span>&nbsp;</div>');
             root.find('.dropzone.place' + i).width(maxWidth - 2).height(maxHeight - 2);
         }
     };
