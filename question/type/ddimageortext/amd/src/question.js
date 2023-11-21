@@ -217,7 +217,7 @@ define([
      */
     DragDropOntoImageQuestion.prototype.resizeAllDragsAndDropsInGroup = function(group) {
         var root = this.getRoot(),
-            dragHomes = root.find('.dragitemgroup' + group + ' .draghome'),
+            dragHomes = root.find("div.group" + group),
             maxWidth = 0,
             maxHeight = 0;
 
@@ -250,9 +250,11 @@ define([
             if (label === '') {
                 label = M.util.get_string('blank', 'qtype_ddimageortext');
             }
-            root.find('.dropzones').append('<div class="dropzone active group' + place.group +
-                ' place' + i + '" tabindex="0">' +
-                '<span class="accesshide">' + label + '</span>&nbsp;</div>');
+            if (root.find('.dropzones .dropzone.group' + place.group + '.place' + i).length === 0) {
+                root.find('.dropzones').append('<div class="dropzone active group' + place.group +
+                    ' place' + i + '" tabindex="0">' +
+                    '<span class="accesshide">' + label + '</span>&nbsp;</div>');
+            }
             root.find('.dropzone.place' + i).width(maxWidth - 2).height(maxHeight - 2);
         }
     };

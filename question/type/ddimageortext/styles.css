@@ -118,6 +118,10 @@ form.mform fieldset#id_previewareaheader .drag.beingdragged,
     position: absolute;
 }
 
+.que.ddimageortext .MathJax_Display {
+    margin: 0;
+}
+
 .que.ddimageortext .group1,
 form.mform fieldset#id_previewareaheader .group1 {
     background-color: #fff;
