@@ -210,3 +210,5 @@ Feature: Attempt a quiz
     And I follow "Finish review"
     And I should not see "Re-attempt quiz"
     And I should see "No more attempts are allowed"
+
+  # TODO Add a scenario to verify that if a question is edited, the student still sees the same version.
