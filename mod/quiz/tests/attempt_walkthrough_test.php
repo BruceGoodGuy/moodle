@@ -19,6 +19,7 @@ namespace mod_quiz;
 use moodle_url;
 use question_bank;
 use question_engine;
+use mod_quiz\question\bank\qbank_helper;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -147,6 +148,23 @@ class attempt_walkthrough_test extends \advanced_testcase {
         $gradebookitem = array_shift($gradebookgrades->items);
         $gradebookgrade = array_shift($gradebookitem->grades);
         $this->assertEquals(100, $gradebookgrade->grade);
+
+        // Update question in quiz.
+        $questiongenerator->update_question($saq, null, ['name' => 'This is the second version of shortanswer']);
+        $questiongenerator->update_question($numq, null, ['name' => 'This is the second version of numerical']);
+        $questiongenerator->update_question($matchq, null, ['name' => 'This is the second version of match']);
+        $questiongenerator->update_question($description, null, ['name' => 'This is the second version of description']);
+
+        // Test get latest question version in quiz.
+        $questions = qbank_helper::get_new_question_for_slots($attempt, $quba, $quizobj->get_context());
+
+        $structure = $quizobj->get_structure();
+
+        foreach ($structure->get_slots() as $slotdata) {
+            $question = $questions[$slotdata->slot];
+            $this->assertEquals(2, $question->version);
+            $this->assertEquals($slotdata->name, $question->name);
+        }
     }
 
     /**
