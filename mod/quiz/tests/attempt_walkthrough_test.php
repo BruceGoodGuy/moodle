@@ -159,12 +159,11 @@ class attempt_walkthrough_test extends \advanced_testcase {
         $questiongenerator->update_question($description, null, ['name' => 'This is the second version of description']);
 
         // Test get latest question version in quiz.
-        $questions = qbank_helper::get_new_question_for_slots($attempt, $quba, $quizobj->get_context());
-
+        $newquestionidsforold = [];
         $structure = $quizobj->get_structure();
-
         foreach ($structure->get_slots() as $slotdata) {
-            $question = $questions[$slotdata->slot];
+            $question = qbank_helper::get_latest_question_in_slot(null, $newquestionidsforold, $attempt,
+                $quizobj->get_context(), $slotdata->slot, $quba);
             $this->assertEquals(2, $question->version);
             $this->assertEquals($slotdata->name, $question->name);
         }

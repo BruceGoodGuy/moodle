@@ -278,47 +278,44 @@ class qbank_helper {
     /**
      * Get the latest questions version in slot.
      *
+     * @param ?array $structureforregrade Cache data.
+     * @param ?array $newquestionidsforold Cache new questionid data.
      * @param \stdClass $attempt Quiz attempt object.
+     * @param ?\context_module $context Quiz context.
+     * @param int $slot which slot is currently being got the latest version.
      * @param \question_usage_by_activity $quba The question usage.
-     * @param \context_module $context Quiz context.
-     * @return array List questions with the latest version.
+     * @return \question_definition other question version to use for this slot.
      */
-    public static function get_new_question_for_slots(\stdClass $attempt,
-            \question_usage_by_activity $quba, \context_module $context): array {
-        $questionstructures = self::get_question_structure(
-            $attempt->quiz, $context);
-        $originalslots = [];
-        $response = [];
-        $newquestionidsforold = [];
-
-        foreach ($questionstructures as $slot => $question) {
-            if (in_array($slot, $originalslots)) {
-                continue;
-            }
-            // Because of 'Redo question in attempt' feature, we need to find the original slot number.
-            $originalslot = $quba->get_question_attempt_metadata($slot, 'originalslot') ?? $slot;
-            $originalslots[] = $slot;
-            // If this is a non-random slot, we will have the right info cached.
-            if ($questionstructures[$originalslot]->qtype != 'random') {
-                // This is a non-random slot.
-                $response[$slot] = \question_bank::load_question($questionstructures[$originalslot]->questionid);
-                continue;
-            }
-
-            // We must be dealing with a random question. Check that cache.
-            $currentquestion = $quba->get_question_attempt($originalslot)->get_question(false);
-            if (isset($newquestionidsforold[$currentquestion->id])) {
-                $response[$slot] = \question_bank::load_question($newquestionidsforold[$currentquestion->id]);
-                continue;
-            }
-
-            // This is a random question we have not seen yet. Find the latest version.
-            $versionsoptions = self::get_version_options($currentquestion->id);
-            $latestversion = reset($versionsoptions);
-            $newquestionidsforold[$currentquestion->id] = $latestversion->questionid;
-            $response[$slot] = \question_bank::load_question($latestversion->questionid);
+    public static function get_latest_question_in_slot(?array $structureforregrade, ?array &$newquestionidsforold,
+            \stdClass $attempt, ?\context_module $context, int $slot, \question_usage_by_activity $quba): \question_definition {
+        // If the cache is empty, get information about all the slots.
+        if ($structureforregrade === null) {
+            $newquestionidsforold = [];
+            // Load the data about all the non-random slots now.
+            $structureforregrade = self::get_question_structure(
+                $attempt->quiz, $context);
         }
 
-        return $response;
+        // Because of 'Redo question in attempt' feature, we need to find the original slot number.
+        $originalslot = $quba->get_question_attempt_metadata($slot, 'originalslot') ?? $slot;
+
+        // If this is a non-random slot, we will have the right info cached.
+        if ($structureforregrade[$originalslot]->qtype != 'random') {
+            // This is a non-random slot.
+            return \question_bank::load_question($structureforregrade[$originalslot]->questionid);
+        }
+
+        // We must be dealing with a random question. Check that cache.
+        $currentquestion = $quba->get_question_attempt($originalslot)->get_question(false);
+        if (isset($newquestionidsforold[$currentquestion->id])) {
+            return \question_bank::load_question($newquestionidsforold[$currentquestion->id]);
+        }
+
+        // This is a random question we have not seen yet. Find the latest version.
+        $versionsoptions = self::get_version_options($currentquestion->id);
+        $latestversion = reset($versionsoptions);
+        $newquestionidsforold[$currentquestion->id] = $latestversion->questionid;
+
+        return \question_bank::load_question($latestversion->questionid);
     }
 }

@@ -221,6 +221,8 @@ class question_usage_by_activity {
             foreach ($oldqa->get_step_iterator() as $oldstep) {
                 $this->observer->notify_step_deleted($oldstep, $oldqa);
             }
+            // We need to set id for the new question attempt.
+            $qa->set_database_id($oldqa->get_database_id());
             $this->observer->notify_attempt_modified($qa);
         }
 
