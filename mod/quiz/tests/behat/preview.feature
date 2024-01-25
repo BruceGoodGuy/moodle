@@ -81,29 +81,35 @@ Feature: Preview a quiz as a teacher
     Then I should see "Question 1"
     And "Start a new preview" "button" should exist
 
-  # TODO why do we need this scenario as well as the next on?
-  Scenario: Teachers should preview quizzes with the latest version of questions after updating.
-    Given I am on the "Quiz 1" "mod_quiz > View" page logged in as "teacher"
-    When I press "Preview quiz"
-    And I should see "Question 1"
-    And I click on "Edit question" "link" in the "Question 1" "question"
-    And I set the field "Question text" to "First question version 2"
-    And I press "id_submitbutton"
-    Then I should see "v2 (latest)" in the "Question 1" "question"
-    And I should see "First question version 2" in the "Question 1" "question"
-
   @javascript
-  Scenario: Teacher responses should be preserved after updating the question text in the preview.
-    Given I am on the "Quiz 1" "mod_quiz > View" page logged in as "teacher"
-    When I press "Preview quiz"
-    And I click on "True" "radio" in the "First question" "question"
+  Scenario: Teacher responses should be cleared after updating the question too much in the preview.
+    Given the following "activities" exist:
+      | activity | name   | course |
+      | quiz     | Quiz 3 | C1     |
+    And the following "questions" exist:
+      | questioncategory | qtype       | name             | questiontext |
+      | Test questions   | multichoice | Multi-choice-002 | one_of_four  |
+    And quiz "Quiz 3" contains the following questions:
+      | question         | page |
+      | Multi-choice-002 | 1    |
+    And I am on the "Quiz 3" "mod_quiz > View" page logged in as "teacher"
+    And I press "Preview quiz"
+    And I should see "one_of_four"
+    And I should see "v1 (latest)"
+    And I click on "One" "qtype_multichoice > Answer"
+    And I click on "Two" "qtype_multichoice > Answer"
     And I press "Finish attempt ..."
     And I press "Return to attempt"
     And I click on "Edit question" "link" in the "Question 1" "question"
-    And I set the field "Question text" to "First question version 2"
+    And I set the field "Question text" to "one_of_four version 2"
+    And I set the field "Choice 4" to ""
     And I press "id_submitbutton"
-    Then I should see "v2 (latest)" in the "Question 1" "question"
-    And I should see "First question version 2" in the "Question 1" "question"
-    And the "True" "radio" should be enabled
-
-  # TODO should we have a scenario where the question has changed so much it must be restarted? Yes.
+    Then I should see "one_of_four version 2"
+    And I should see "v2 (latest)"
+    And I should see "One"
+    And I should see "Two"
+    And I should see "Three"
+    And I should not see "Four"
+    And "input[type=checkbox][name$=choice0]:checked" "css_element" should not exist
+    And "input[type=checkbox][name$=choice1]:checked" "css_element" should not exist
+    And "input[type=checkbox][name$=choice2]:checked" "css_element" should not exist
