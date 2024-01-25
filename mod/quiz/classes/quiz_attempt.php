@@ -2353,13 +2353,20 @@ class quiz_attempt {
      * if that is not possible, we put in a newly started attempt.
      */
     public function update_questions_to_new_version_if_changed(): void {
-        $anychanges = false;
-        $questionslots = qbank_helper::get_new_question_for_slots($this->attempt, $this->quba, $this->get_context());
+        global $DB;
 
-        foreach ($questionslots as $slot => $newquestion) {
+        $anychanges = false;
+        $questionstructures = qbank_helper::get_question_structure(
+            $this->attempt->quiz, $this->get_context());
+        $newquestionidsforold = [];
+        foreach ($questionstructures as $slot => $questionslot) {
+            $newquestion = qbank_helper::get_latest_question_in_slot($questionstructures, $newquestionidsforold, $this->attempt,
+                null, $slot, $this->quba);
             $oldquestion = $this->get_question_attempt($slot)->get_question();
             if ($oldquestion->version === $newquestion->version) {
                 // No change in this question.
+                // We need to revert to the original question definition.
+                \core_question\output\question_version_info::$pendingdefinitions[$oldquestion->id] = $oldquestion;
                 continue;
             }
             $anychanges = true;
@@ -2369,8 +2376,8 @@ class quiz_attempt {
                 $finished = $this->get_attempt()->state == self::FINISHED;
                 $this->quba->regrade_question($slot, $finished, null, $newquestion);
             } else {
-                // So much has chagned, we have to replace the question with a new attempt.
-                $oldvariant = $this->quba-->$this->get_question_attempt($slot)->get_variant();
+                // So much has changed, we have to replace the question with a new attempt.
+                $oldvariant = $this->get_question_attempt($slot)->get_variant();
                 $slot = $this->quba->add_question_in_place_of_other($slot, $newquestion, null, false);
                 $this->quba->start_question($slot, $oldvariant);
             }
@@ -2378,7 +2385,6 @@ class quiz_attempt {
 
         if ($anychanges) {
             question_engine::save_questions_usage_by_activity($this->quba);
-
             if ($this->attempt->state == self::FINISHED) {
                 $this->attempt->sumgrades = $this->quba->get_total_mark();
                 $DB->update_record('quiz_attempts', $this->attempt);
