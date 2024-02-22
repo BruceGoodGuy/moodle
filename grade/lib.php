@@ -970,10 +970,17 @@ function print_grade_page_head(int $courseid, string $active_type, ?string $acti
             $actionbar = new general_action_bar($PAGE->context, $PAGE->url, $active_type, $active_plugin);
         }
 
+        $report = new \core\output\report_action_bar($courseid, $PAGE, 'grade', null, $actionbar, null);
+        $template = $OUTPUT->render($report);
+
+//        $x =  $actionbar->export_for_template($OUTPUT);
+
         if ($return) {
-            $returnval .= $renderer->render_action_bar($actionbar);
+//            $returnval .= $renderer->render_action_bar($actionbar);
+            $returnval .= $template;
         } else {
-            echo $renderer->render_action_bar($actionbar);
+//            echo $renderer->render_action_bar($actionbar);
+            echo $template;
         }
     }
 

@@ -76,7 +76,7 @@ class action_bar extends \core_grades\output\action_bar {
             $gradesrenderer = $PAGE->get_renderer('core_grades');
 
             $initialscontent = $gradesrenderer->initials_selector(
-                $course,
+                $courseid,
                 $this->context,
                 '/grade/report/grader/index.php'
             );

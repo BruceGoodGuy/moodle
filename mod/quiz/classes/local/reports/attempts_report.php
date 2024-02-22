@@ -167,10 +167,12 @@ abstract class attempts_report extends report_base {
      */
     protected function print_standard_header_and_messages($cm, $course, $quiz,
             $options, $currentgroup, $hasquestions, $hasstudents) {
-        global $OUTPUT;
-
+        global $OUTPUT, $PAGE;
+//        $PAGE->set_navigation_overflow_state(false);
         $this->print_header_and_tabs($cm, $course, $quiz, $this->mode);
-
+        $url = $options->get_url();
+        $PAGE->set_navigation_overflow_state(true);
+        $this->print_action_bar($this->mode, $url, $cm);
         if (groups_get_activity_groupmode($cm)) {
             // Groups are being used, so output the group selector if we are not downloading.
             groups_print_activity_menu($cm, $options->get_url());

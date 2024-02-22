@@ -32,6 +32,7 @@ import $ from 'jquery';
  * @type {boolean}
  */
 let registered = false;
+let mode;
 
 // Contain our selectors within this file until they could be of use elsewhere.
 const selectors = {
@@ -57,13 +58,14 @@ const selectors = {
  * @param {String} callingLink The link to redirect upon form submission.
  * @param {Null|Number} gpr_userid The user id to filter by.
  * @param {Null|String} gpr_search The search value to filter by.
+ * @param params
  */
-export const init = (callingLink, gpr_userid = null, gpr_search = null) => {
+export const init = (callingLink, gpr_userid = null, gpr_search = null, params) => {
     if (registered) {
         return;
     }
     const pendingPromise = new Pending();
-    registerListenerEvents(callingLink, gpr_userid, gpr_search);
+    registerListenerEvents(callingLink, gpr_userid, gpr_search, params);
     // BS events always bubble so, we need to listen for the event higher up the chain.
     $(selectors.parentDomNode).on('shown.bs.dropdown', () => {
         document.querySelector(selectors.pageClickableItem).focus({preventScroll: true});
@@ -78,8 +80,9 @@ export const init = (callingLink, gpr_userid = null, gpr_search = null) => {
  * @param {String} callingLink The link to redirect upon form submission.
  * @param {Null|Number} gpr_userid The user id to filter by.
  * @param {Null|String} gpr_search The search value to filter by.
+ * @param params
  */
-const registerListenerEvents = (callingLink, gpr_userid = null, gpr_search = null) => {
+const registerListenerEvents = (callingLink, gpr_userid = null, gpr_search = null, externalParams) => {
     const events = [
         'click',
         CustomEvents.events.activate,
@@ -125,12 +128,20 @@ const registerListenerEvents = (callingLink, gpr_userid = null, gpr_search = nul
                 if (e.target.dataset.action === selectors.formItems.save) {
                     // Ensure we strip out the value (All) as it messes with the PHP side of the initials bar.
                     // Then we will redirect the user back onto the page with new filters applied.
-                    const params = {
+                    const first = sifirst.parentElement.classList.contains('initialbarall') ? '' : sifirst.value;
+                    const last = silast.parentElement.classList.contains('initialbarall') ? '' : silast.value;
+                    let params = {
                         'id': e.target.closest(selectors.formDropdown).dataset.courseid,
                         'gpr_search': gpr_search !== null ? gpr_search : '',
-                        'sifirst': sifirst.parentElement.classList.contains('initialbarall') ? '' : sifirst.value,
-                        'silast': silast.parentElement.classList.contains('initialbarall') ? '' : silast.value,
                     };
+
+                    if (externalParams) {
+                        params = {...params, ...externalParams, tifirst: first, tilast: last};
+                    } else {
+                        params.sifirst = first;
+                        params.silast = last;
+                    }
+
                     if (gpr_userid !== null) {
                         params.gpr_userid = gpr_userid;
                     }

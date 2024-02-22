@@ -13,22 +13,29 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+namespace gradereport_grader\output;
 defined('MOODLE_INTERNAL') || die;
 
 use core\output\comboboxsearch;
 use \core_grades\output\action_bar;
 use core_message\helper;
 use core_message\api;
+use moodle_url;
 
-/**
+/**1
  * Renderer class for the grade pages.
  *
  * @package    core_grades
  * @copyright  2021 Mihail Geshoski <mihail@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class core_grades_renderer extends \gradereport_grader\output\report_renderer {
+class report_renderer extends \plugin_renderer_base {
+
+    public $report = 'gradereport';
+
+    public function setReportType($type) {
+        $this->report = $type;
+    }
 
     /**
      * Renders the action bar for a given page.
@@ -71,7 +78,7 @@ class core_grades_renderer extends \gradereport_grader\output\report_renderer {
             'groupactionbaseurl' => $groupactionbaseurl
         ];
 
-        $context = context_course::instance($course->id);
+        $context = \context_course::instance($course->id);
 
         if ($groupmode == VISIBLEGROUPS || has_capability('moodle/site:accessallgroups', $context)) {
             $allowedgroups = groups_get_all_groups($course->id, 0, $course->defaultgroupingid);
@@ -110,45 +117,49 @@ class core_grades_renderer extends \gradereport_grader\output\report_renderer {
      * @param string $slug The slug for the report that called this function.
      * @return stdClass The data to output.
      */
-//    public function initials_selector(
-//        object $course,
-//        \context $context,
-//        string $slug,
-//    ): \stdClass {
-//        global $SESSION, $COURSE;
-//        // User search.
-//        $searchvalue = optional_param('gpr_search', null, PARAM_NOTAGS);
-//        $userid = optional_param('grp_userid', null, PARAM_INT);
-//        $url = new moodle_url($slug, ['id' => $course->id]);
-//        $firstinitial = $SESSION->gradereport["filterfirstname-{$context->id}"] ?? '';
-//        $lastinitial  = $SESSION->gradereport["filtersurname-{$context->id}"] ?? '';
-//
-//        $renderer = $this->page->get_renderer('core_user');
-//        $initialsbar = $renderer->partial_user_search($url, $firstinitial, $lastinitial, true);
-//
-//        $currentfilter = '';
-//        if ($firstinitial !== '' && $lastinitial !== '') {
-//            $currentfilter = get_string('filterbothactive', 'grades', ['first' => $firstinitial, 'last' => $lastinitial]);
-//        } else if ($firstinitial !== '') {
-//            $currentfilter = get_string('filterfirstactive', 'grades', ['first' => $firstinitial]);
-//        } else if ($lastinitial !== '') {
-//            $currentfilter = get_string('filterlastactive', 'grades', ['last' => $lastinitial]);
-//        }
-//
-//        $this->page->requires->js_call_amd('core_grades/searchwidget/initials', 'init', [$slug, $userid, $searchvalue]);
-//
-//        $formdata = (object) [
-//            'courseid' => $COURSE->id,
-//            'initialsbars' => $initialsbar,
-//        ];
-//        $dropdowncontent = $this->render_from_template('core_grades/initials_dropdown_form', $formdata);
-//
-//        return (object) [
-//             'buttoncontent' => $currentfilter !== '' ? $currentfilter : get_string('filterbyname', 'core_grades'),
-//             'buttonheader' => $currentfilter !== '' ? get_string('name') : null,
-//             'dropdowncontent' => $dropdowncontent,
-//        ];
-//    }
+    public function initials_selector(
+        int $id,
+        \context $context,
+        string $slug,
+        string $searchprefix = 'gpr',
+        array $urlparams = [],
+    ): \stdClass {
+        global $SESSION, $COURSE, $OUTPUT;
+        // User search.
+        $searchvalue = optional_param($searchprefix . '_search', null, PARAM_NOTAGS);
+        $userid = optional_param($searchprefix . '_userid', null, PARAM_INT);
+//        $params = [...['id' => $id], ...$urlparams];
+//        $url = new moodle_url($slug, $params);
+        $url = new moodle_url($slug, ['id' => $id]);
+        $firstinitial = $SESSION->{$this->report}["filterfirstname-{$context->id}"] ?? '';
+        $lastinitial  = $SESSION->{$this->report}["filtersurname-{$context->id}"] ?? '';
+
+        $renderer = $this->page->get_renderer('core_user');
+        $initialsbar = $renderer->partial_user_search($url, $firstinitial, $lastinitial, true);
+
+        $currentfilter = '';
+        if ($firstinitial !== '' && $lastinitial !== '') {
+            $currentfilter = get_string('filterbothactive', 'grades', ['first' => $firstinitial, 'last' => $lastinitial]);
+        } else if ($firstinitial !== '') {
+            $currentfilter = get_string('filterfirstactive', 'grades', ['first' => $firstinitial]);
+        } else if ($lastinitial !== '') {
+            $currentfilter = get_string('filterlastactive', 'grades', ['last' => $lastinitial]);
+        }
+
+        $this->page->requires->js_call_amd('core_grades/searchwidget/initials', 'init', [$slug, $userid, $searchvalue, $urlparams]);
+
+        $formdata = (object) [
+            'courseid' => $COURSE->id,
+            'initialsbars' => $initialsbar,
+        ];
+        $dropdowncontent = $this->render_from_template('core_grades/initials_dropdown_form', $formdata);
+
+        return (object) [
+            'buttoncontent' => $currentfilter !== '' ? $currentfilter : get_string('filterbyname', 'core_grades'),
+            'buttonheader' => $currentfilter !== '' ? get_string('name') : null,
+            'dropdowncontent' => $dropdowncontent,
+        ];
+    }
 
     /**
      * Creates and renders a custom user heading.

@@ -19,6 +19,9 @@ namespace mod_quiz\local\reports;
 use context;
 use context_module;
 use stdClass;
+//use \core_grades\output\action_bar;
+use \mod_quiz\output\action_bar;
+use moodle_page;
 
 /**
  * Base class for quiz report plugins.
@@ -92,5 +95,15 @@ abstract class report_base {
         }
 
         return $currentgroup;
+    }
+
+    public function print_action_bar($reportmode, $url, $cm) {
+        global $PAGE, $OUTPUT;
+        // Print the page header.
+        $menus = $PAGE->secondarynav->get_overflow_menu_data();
+        $selectmenu = new \core\output\select_menu('reportsactionselect', $menus->urls, $menus->selected);
+        $selectmenu->set_label(get_string('browsesettingindex', 'course'), ['class' => 'sr-only']);
+        $report = new \core\output\report_action_bar(null, $PAGE, $reportmode, $cm, $selectmenu, $url);
+        echo $OUTPUT->render($report);
     }
 }
