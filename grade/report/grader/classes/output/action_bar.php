@@ -34,7 +34,6 @@ class action_bar extends \core_grades\output\action_bar {
 
     /** @var string $usersearch The content that the current user is looking for. */
     protected string $usersearch = '';
-
     /** @var int $userid The ID of the user that the current user is looking for. */
     protected int $userid = 0;
 
@@ -61,7 +60,7 @@ class action_bar extends \core_grades\output\action_bar {
      * @return string
      */
     public function get_template(): string {
-        return 'gradereport_grader/action_bar';
+        return 'core/action_bar';
     }
 
     /**
@@ -103,6 +102,7 @@ class action_bar extends \core_grades\output\action_bar {
                 lastinitial: $lastnameinitial,
                 additionalparams: $additionalparams,
             );
+
             $data['initialselector'] = $initialselector->export_for_template($output);
 
             if ($course->groupmode) {
