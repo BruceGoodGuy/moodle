@@ -39,12 +39,6 @@ class quiz_action_bar implements templatable, renderable {
     protected string $reportmode;
     /** @var attempts_report_options $options the current report settings. */
     protected object $options;
-    /** @var object $table The table class for each report type. */
-    protected object $table;
-    /** @var string|null $tifirst The firstname filter letter */
-    protected ?string $tifirst;
-    /** @var string|null $tilast The surname filter letter. */
-    protected ?string $tilast;
     /** @var int $tilast The reset table status. */
     protected int $treset;
     /** @var \context $context The context object. */
@@ -54,41 +48,18 @@ class quiz_action_bar implements templatable, renderable {
      * The class constructor.
      *
      * @param \context $context The context object.
-     * @param attempts_report_options $options The current report settings.
      * @param string $reportmode The quiz report type.
-     * @param mixed $table The table class for each report type. With each type of report,
-     *      the table's type varies, so 'mixed' is selected.
+     * @param ?attempts_report_options $options The current report settings.
      */
-    public function __construct($context, $options, $reportmode, $table) {
-        global $SESSION;
+    public function __construct($context, $reportmode, $options = null) {
         $this->context = $context;
-        $this->table = $table;
         $this->usersearch = optional_param('gpr_search', '', PARAM_NOTAGS);
         $this->userid = optional_param('gpr_userid', '', PARAM_INT);
-        $this->tifirst = optional_param('tifirst', null, PARAM_RAW);
-        $this->tilast = optional_param('tilast', null, PARAM_RAW);
         $this->treset = optional_param('treset', 0, PARAM_INT);
-
-        // Set up for the new initial bar filter.
-        if (!is_null($this->tifirst) && ($this->tifirst === '' ||
-                str_contains(get_string('alphabet', 'langconfig'), $this->tifirst))) {
-            $SESSION->{$reportmode . 'report'}["filterfirstname-{$context->id}"] = $this->tifirst;
-            // When the user list is empty, we need to set the i_first session manually.
-            $SESSION->flextable[$table->uniqueid]['i_first'] = $this->tifirst;
-        }
-        if (!is_null($this->tilast) && ($this->tilast === '' ||
-                str_contains(get_string('alphabet', 'langconfig'), $this->tilast))) {
-            $SESSION->{$reportmode . 'report'}["filtersurname-{$context->id}"] = $this->tilast;
-            // When the user list is empty, we need to set the i_last session manually.
-            $SESSION->flextable[$table->uniqueid]['i_last'] = $this->tilast;
-        }
-        // Reset initials filter.
-        if ($this->treset === 1) {
-            $SESSION->{$reportmode . 'report'}["filterfirstname-{$context->id}"] = '';
-            $SESSION->{$reportmode . 'report'}["filtersurname-{$context->id}"] = '';
-        }
         $this->reportmode = $reportmode;
-        $this->options = $options;
+        if (!is_null($options)) {
+            $this->options = $options;
+        }
     }
 
     /**
@@ -113,7 +84,7 @@ class quiz_action_bar implements templatable, renderable {
         $cm = $this->options->cm;
         $course = $cm->get_course();
         // Get the data used to output the general navigation selector.
-        $generalnavselector = new general_action_bar($this->context, $this->options, $this->reportmode, $this->table);
+        $generalnavselector = new general_action_bar($this->context, $this->reportmode, $this->options);
         $data = $generalnavselector->export_for_template($output);
         // Prepare url param.
         $url = $this->options->get_url();
@@ -131,6 +102,8 @@ class quiz_action_bar implements templatable, renderable {
             $this->reportmode,
             $cmid,
         );
+        $firstnameinitial = $SESSION->{$this->reportmode . 'report'}["filterfirstname-{$this->context->id}"] ?? '';
+        $lastnameinitial  = $SESSION->{$this->reportmode . 'report'}["filtersurname-{$this->context->id}"] ?? '';
         $data['initialselector'] = $initialselector->export_for_template($output);
         // Set up data for group selector.
         $data['groupselector'] = \core\output\groups_bar::group_selector($course,
@@ -163,15 +136,12 @@ class quiz_action_bar implements templatable, renderable {
             $allowedgroups = groups_get_all_groups($course->id, $USER->id, $course->defaultgroupingid);
         }
 
-        if (!empty($SESSION->{$this->reportmode . 'report'}["filterfirstname-{$this->context->id}"])
-                || !empty($SESSION->{$this->reportmode . 'report'}["filtersurname-{$this->context->id}"]) ||
-                groups_get_course_group($course, true, $allowedgroups) ||
-                $this->usersearch
-        ) {
+        if (!empty($firstnameinitial) || !empty($lastnameinitial) ||
+                groups_get_course_group($course, true, $allowedgroups) || $this->usersearch) {
             $resetparam = array_merge($this->options->get_url()->params(), [
                 'group' => 0,
-                'tifirst' => '',
-                'tilast' => '',
+                'sifirst' => '',
+                'silast' => '',
                 'gpr_search' => '',
             ]);
 

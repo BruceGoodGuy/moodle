@@ -47,16 +47,11 @@ class initials_bar {
         // User search.
         $url = new moodle_url($slug, $params);
 
-        $prefix = 'si';
-        if (!is_null($cmid)) {
-            // To reuse existing filter feature of flex table.
-            $prefix = 'ti';
-        }
         $firstinitial = $SESSION->{$reportmode . 'report'}["filterfirstname-{$context->id}"] ?? '';
-        $lastinitial = $SESSION->{$reportmode . 'report'}["filtersurname-{$context->id}"] ?? '';
+        $lastinitial  = $SESSION->{$reportmode . 'report'}["filtersurname-{$context->id}"] ?? '';
 
         $renderer = $PAGE->get_renderer('core_user');
-        $initialsbar = $renderer->partial_user_search($url, $firstinitial, $lastinitial, true, $prefix);
+        $initialsbar = $renderer->partial_user_search($url, $firstinitial, $lastinitial, true);
 
         $currentfilter = '';
         if ($firstinitial !== '' && $lastinitial !== '') {

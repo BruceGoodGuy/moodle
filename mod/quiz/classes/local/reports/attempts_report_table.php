@@ -520,7 +520,7 @@ abstract class attempts_report_table extends \table_sql {
      *     build the actual database query.
      */
     public function base_sql(\core\dml\sql_join $allowedstudentsjoins) {
-        global $DB;
+        global $DB, $SESSION;
 
         // Please note this uniqueid column is not the same as quiza.uniqueid.
         $fields = 'DISTINCT ' . $DB->sql_concat('u.id', "'#'", 'COALESCE(quiza.attempt, 0)') . ' AS uniqueid,';
@@ -601,13 +601,7 @@ abstract class attempts_report_table extends \table_sql {
 
         if ($this->options->usersearch !== '' && $this->options->userid === -1) {
             ['mappings' => $mappings] = (array) $userfields;
-            // These fields are not displayed in the table, so users are not allowed to search by them:
-            // firstnamephonetic, lastnamephonetic, middlename, alternatename.
-            $excludingfields = ['u.firstnamephonetic', 'u.lastnamephonetic', 'u.middlename',
-                'u.alternatename'];
-            $extrafields = array_filter(array_values($mappings), function($field) use ($excludingfields) {
-                return !in_array($field, $excludingfields);
-            });
+            $extrafields = array_values($mappings);
             // Allow to search by email.
             $extrafields[] = 'u.email';
             [$keywordswhere, $keywordsparams] = users_search_sql($this->options->usersearch,
@@ -615,6 +609,18 @@ abstract class attempts_report_table extends \table_sql {
 
             $where .= " AND $keywordswhere";
             $params = array_merge($params, $keywordsparams);
+        }
+
+        $filterfirstnamekey = "filterfirstname-{$this->context->id}";
+        $filtersurnamekey = "filtersurname-{$this->context->id}";
+
+        if (!empty($SESSION->{$this->options->mode . 'report'}[$filterfirstnamekey])) {
+            $where .= ' AND ' . $DB->sql_like('u.firstname', ':firstname', false, false);
+            $params['firstname'] = $SESSION->{$this->options->mode . 'report'}[$filterfirstnamekey] . '%';
+        }
+        if (!empty($SESSION->{$this->options->mode . 'report'}[$filtersurnamekey])) {
+            $where .= ' AND ' . $DB->sql_like('u.lastname', ':lastname', false, false);
+            $params['lastname'] = $SESSION->{$this->options->mode . 'report'}[$filtersurnamekey] . '%';
         }
 
         if ($this->options->states) {

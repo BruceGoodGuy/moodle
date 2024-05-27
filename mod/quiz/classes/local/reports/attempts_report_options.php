@@ -218,6 +218,27 @@ class attempts_report_options {
     }
 
     /**
+     * Set the fields of this object from the data parameters.
+     *
+     * @param stdClass $data Addition parameter.
+     */
+    public function setup_from_params_array(stdClass $data): void {
+        $this->attempts   = $data->attempts ?? $this->attempts;
+        $this->group      = groups_get_activity_group($this->cm, true);
+        $this->onlygraded = $data->onlygraded ?? $this->onlygraded;
+        $this->pagesize   = $data->pagesize ?? $this->pagesize;
+        $this->usersearch = $data->gpr_search ?? '';
+        $this->userid     = $data->gpr_userid ?? -1;
+
+        $states = $data->states ?? '';
+        if (!empty($states)) {
+            $this->states = explode('-', $states);
+        }
+
+        $this->download   =  $data->download ??  $this->download;
+    }
+
+    /**
      * Set the fields of this object from the user's preferences.
      * (For those settings that are backed by user-preferences).
      */

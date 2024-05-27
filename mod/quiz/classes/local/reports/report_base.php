@@ -100,11 +100,9 @@ abstract class report_base {
      *
      * @param string $reportmode The quiz report type.
      * @param attempts_report_options $options The current report settings.
-     * @param mixed $table The table class for each report type.
-     *      With each type of report, the table's type varies, so 'mixed' is selected.
      * @param \cm_info $cm Course-module object.
      */
-    public function print_action_bar(string $reportmode, attempts_report_options $options, mixed $table,
+    public function print_action_bar(string $reportmode, attempts_report_options $options,
             \cm_info $cm = null): void {
         global $PAGE;
         $renderer = $PAGE->get_renderer('mod_quiz');
@@ -113,16 +111,40 @@ abstract class report_base {
         $params->params = $options->get_url()->params();
         $params->reportmode = $reportmode;
         $params->cmid = $cm->id;
-        $params->optionclass = get_class($options);
         $params->service = 'mod_quiz_get_users_in_report';
-        $params->tableclass = get_class($table);
         // Conditionally add the group JS if we have groups enabled.
         if (groups_get_activity_groupmode($cm)) {
             $PAGE->requires->js_call_amd('core/comboboxsearch/group', 'init', [$params]);
         }
         $PAGE->requires->js_call_amd('core/searchwidget/user', 'init', [$params]);
-        $actionbar = new \mod_quiz\output\quiz_action_bar(\context_module::instance($cm->id),
-            $options, $reportmode, $table);
+        $actionbar = new \mod_quiz\output\quiz_action_bar(\context_module::instance($cm->id), $reportmode,
+            $options);
+        echo $renderer->render_action_bar($actionbar);
+    }
+
+    /**
+     * Print basic action bar filter.
+     *
+     * @param string $reportmode The quiz report type.
+     * @param \moodle_url $url Full report url.
+     * @param \cm_info $cm Course-module object.
+     */
+    public function print_basic_action_bar(string $reportmode, \moodle_url $url, \cm_info $cm): void {
+        global $PAGE;
+        $renderer = $PAGE->get_renderer('mod_quiz');
+        $params = new stdClass();
+        $params->path = '/mod/quiz/report.php';
+        $params->params = $url->params();
+        $params->reportmode = $reportmode;
+        $params->cmid = $cm->id;
+        // Conditionally add the group JS if we have groups enabled.
+        if (groups_get_activity_groupmode($cm)) {
+            $PAGE->requires->js_call_amd('core/comboboxsearch/group', 'init', [$params]);
+        }
+
+        $actionbar = new \mod_quiz\output\quiz_basic_action_bar(\context_module::instance($cm->id),
+            $reportmode, $cm, $params->params);
+
         echo $renderer->render_action_bar($actionbar);
     }
 }

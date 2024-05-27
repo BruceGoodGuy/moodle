@@ -1480,10 +1480,10 @@ class renderer extends plugin_renderer_base {
     /**
      * Renders the action bar for a quiz report pages.
      *
-     * @param quiz_action_bar $actionbar
+     * @param quiz_action_bar|quiz_basic_action_bar $actionbar
      * @return string The HTML output
      */
-    public function render_action_bar(quiz_action_bar $actionbar): string {
+    public function render_action_bar(quiz_action_bar|quiz_basic_action_bar $actionbar): string {
         $data = $actionbar->export_for_template($this);
         return $this->render_from_template($actionbar->get_template(), $data);
     }

@@ -341,12 +341,11 @@ class quiz_grading_report extends report_base {
     protected function display_index($includeauto) {
         global $PAGE, $OUTPUT;
 
-        $this->print_header_and_tabs($this->cm, $this->course, $this->quiz, 'grading');
+        $PAGE->set_navigation_overflow_state(false);
+        $this->print_header_and_tabs($this->cm, $this->course, $this->quiz, 'statistics');
+        $PAGE->set_navigation_overflow_state(true);
+        $this->print_basic_action_bar('grading', $this->list_questions_url(), $this->cm);
 
-        if ($groupmode = groups_get_activity_groupmode($this->cm)) {
-            // Groups is being used.
-            groups_print_activity_menu($this->cm, $this->list_questions_url());
-        }
         // Get the current group for the user looking at the report.
         $currentgroup = $this->get_current_group($this->cm, $this->course, $this->context);
         if ($currentgroup == self::NO_GROUPS_ALLOWED) {
