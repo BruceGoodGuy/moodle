@@ -23,12 +23,11 @@ namespace core_group\external;
  * @copyright 2024 The Open University.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since     Moodle 4.4
+ * @covers \get_groups_for_selector
  */
-class events_test extends \advanced_testcase {
+class get_groups_for_selector_test extends \advanced_testcase {
     /**
      * Test test_get_groups_for_selector service.
-     *
-     * @covers ::get_groups_for_selector
      */
     public function test_get_groups_for_selector(): void {
         global $DB;
