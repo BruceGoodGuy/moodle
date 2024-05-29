@@ -303,4 +303,92 @@ $functions = [
         'capabilities' => 'mod/quiz:manage',
         'ajax' => true,
     ],
+
+        'mod_quiz_get_section_title' => [
+        'classname' => 'mod_quiz\external\get_section_title',
+        'description' => 'Get title of the quiz section',
+        'type' => 'read',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_update_section_title' => [
+        'classname' => 'mod_quiz\external\update_section_title',
+        'description' => 'Update title of the quiz section',
+        'type' => 'write',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_update_shuffle_questions' => [
+        'classname' => 'mod_quiz\external\update_shuffle_questions',
+        'description' => 'Update questions shuffle',
+        'type' => 'write',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_move_slot' => [
+        'classname' => 'mod_quiz\external\move_slot',
+        'description' => 'Moving resource',
+        'type' => 'write',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_get_max_mark' => [
+        'classname' => 'mod_quiz\external\get_max_mark',
+        'description' => 'Get max mark resource',
+        'type' => 'read',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_update_max_mark' => [
+        'classname' => 'mod_quiz\external\update_max_mark',
+        'description' => 'Update max mark resource',
+        'type' => 'write',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_update_page_break' => [
+        'classname' => 'mod_quiz\external\update_page_break',
+        'description' => 'Update page break',
+        'type' => 'write',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_delete_multiple' => [
+        'classname' => 'mod_quiz\external\delete_multiple',
+        'description' => 'Delete multiple resource',
+        'type' => 'write',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_update_dependency' => [
+        'classname' => 'mod_quiz\external\update_question_dependency',
+        'description' => 'Update question dependency',
+        'type' => 'write',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_delete_section' => [
+        'classname' => 'mod_quiz\external\delete_section',
+        'description' => 'Delete section',
+        'type' => 'write',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ],
+
+    'mod_quiz_delete_resource' => [
+        'classname' => 'mod_quiz\external\delete_resource',
+        'description' => 'Delete resource',
+        'type' => 'write',
+        'capabilities' => 'mod/quiz:manage',
+        'ajax' => true,
+    ]
 ];
