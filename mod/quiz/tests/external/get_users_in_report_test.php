@@ -67,7 +67,7 @@ final class get_users_in_report_test extends \advanced_testcase {
         $timenow = time();
 
         $users = get_users_in_report::execute($quiz->cmid, 'overview',
-            '')['users'];
+            '{"attempts":"enrolled_with","onlygraded":"","gpr_search":"","onlyregraded":""}')['users'];
         $this->assertCount(0, $users);
 
         // User 1 passes quiz 1.
@@ -85,12 +85,12 @@ final class get_users_in_report_test extends \advanced_testcase {
 
         // Check all users.
         $users = get_users_in_report::execute($quiz->cmid, 'overview',
-            '')['users'];
+            '{"attempts":"enrolled_with","onlygraded":"","gpr_search":"","onlyregraded":""}')['users'];
         $this->assertCount(2, $users);
 
         // Get only attempt has the state is finished.
         $users = get_users_in_report::execute($quiz->cmid, 'overview',
-            '{"states":"finished"}')['users'];
+            '{"attempts":"enrolled_with","onlygraded":"","gpr_search":"","onlyregraded":"", "states":"finished"}')['users'];
         $this->assertCount(1, $users);
     }
 }

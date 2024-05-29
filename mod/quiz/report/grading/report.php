@@ -707,6 +707,11 @@ class quiz_grading_report extends report_base {
         parent::print_header_and_tabs($cm, $course, $quiz, $reportmode);
     }
 
+    /**
+     * Check access permission.
+     *
+     * @param context $context the context to check the capability in.
+     * */
     public function has_permission(context $context): void {
         require_capability('mod/quiz:grade', $context);
     }

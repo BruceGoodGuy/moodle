@@ -25,7 +25,7 @@ namespace core_group\external;
  * @since     Moodle 4.4
  * @covers \core_group\external\get_groups_for_selector
  */
-class get_groups_for_selector_test extends \advanced_testcase {
+final class get_groups_for_selector_test extends \advanced_testcase {
     /**
      * Test test_get_groups_for_selector service.
      */
@@ -79,7 +79,8 @@ class get_groups_for_selector_test extends \advanced_testcase {
             'Group 2 in Grouping B',
             'Group not in any grouping',
         ];
-        // It contains two item: All participant and the new groups: Group 1 in Grouping A, Group 2 in Grouping B, Group not in any grouping.
+        // It contains two item: All participant and the new groups:
+        //  Group 1 in Grouping A, Group 2 in Grouping B, Group not in any grouping.
         $this->assertCount(4, $groups['groups']);
 
         foreach ($groups['groups'] as $key => $group) {

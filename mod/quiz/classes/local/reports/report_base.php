@@ -154,14 +154,15 @@ abstract class report_base {
      * @param stdClass $quiz The quiz object.
      * @param \cm_info $cm The course_module object.
      * @param stdClass $course The course object.
+     * @param null|context $context The context object.
      * @return array The report info array contains option class, table class and allowed joins.
      */
-    public function setup_report_data(stdClass $quiz, \cm_info $cm, stdClass $course): array {
+    public function setup_report_data(stdClass $quiz, \cm_info $cm, stdClass $course, ?context $context): array {
         return [];
     }
 
     /**
-     * Get necessary data for the report.
+     * Check access permission.
      *
      * @param context $context the context to check the capability in.
      * */

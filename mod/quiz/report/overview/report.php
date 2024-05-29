@@ -639,7 +639,17 @@ class quiz_overview_report extends attempts_report {
         quiz_update_grades($quiz);
     }
 
-    public function setup_report_data($quiz, $cm, $course, $context = null): array {
+    /**
+     * Get necessary data for the report.
+     *
+     * @param stdClass $quiz The quiz object.
+     * @param \cm_info $cm The course_module object.
+     * @param stdClass $course The course object.
+     * @param null|context $context The context object.
+     * @return array The report info array contains option class, table class and allowed joins.
+     */
+    public function setup_report_data(stdClass $quiz, \cm_info $cm, stdClass $course,
+            ?context $context = null): array {
         if (!is_null($context)) {
             $this->context = $context;
         }

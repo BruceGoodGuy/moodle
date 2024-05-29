@@ -235,7 +235,7 @@ class attempts_report_options {
             $this->states = explode('-', $states);
         }
 
-        $this->download   =  $data->download ??  $this->download;
+        $this->download = $data->download ?? $this->download;
     }
 
     /**

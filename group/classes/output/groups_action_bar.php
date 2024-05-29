@@ -22,13 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace core_group\output;
-defined('MOODLE_INTERNAL') || die();
+
 
 use renderable;
 use templatable;
 use stdClass;
 use renderer_base;
-use \core\output\comboboxsearch;
+use core\output\comboboxsearch;
 
 /**
  * Group details page class.
