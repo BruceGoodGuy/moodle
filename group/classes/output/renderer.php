@@ -58,4 +58,18 @@ class renderer extends plugin_renderer_base {
         $data = $page->export_for_template($this);
         return parent::render_from_template('core_group/group_details', $data);
     }
+
+    /**
+     * Defer to template.
+     *
+     * @param groups_action_bar $page Group action bar page object.
+     * @return string HTML to render the group action bar.
+     */
+    public function render_group_bar(groups_action_bar $page) {
+        $data = $page->export_for_template($this);
+        if (is_null($data)) {
+            return null;
+        }
+        return $this->render_from_template('core/comboboxsearch', $data);
+    }
 }

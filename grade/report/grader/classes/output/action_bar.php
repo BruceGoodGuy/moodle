@@ -98,7 +98,9 @@ class action_bar extends \core_grades\output\action_bar {
             );
 
             $data['initialselector'] = $initialselector->export_for_template($output);
-            $data['groupselector'] = \core\output\groups_bar::group_selector($course, $output);
+            $grouprenderer = $PAGE->get_renderer('core_group');
+            $groupbar = new \core_group\output\groups_action_bar($course);
+            $data['groupselector'] = $grouprenderer->render_group_bar($groupbar);
 
             $resetlink = new moodle_url('/grade/report/grader/index.php', ['id' => $courseid]);
             $searchinput = $OUTPUT->render_from_template('core_user/comboboxsearch/user_selector', [

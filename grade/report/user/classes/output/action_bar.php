@@ -81,7 +81,9 @@ class action_bar extends \core_grades\output\action_bar {
         // and the view mode selector (if applicable).
         if (has_capability('moodle/grade:viewall', $this->context)) {
             $userreportrenderer = $PAGE->get_renderer('gradereport_user');
-            $data['groupselector'] = \core\output\groups_bar::group_selector(get_course($courseid), $output);
+            $grouprenderer = $PAGE->get_renderer('core_group');
+            $groupbar = new \core_group\output\groups_action_bar(get_course($courseid));
+            $data['groupselector'] = $grouprenderer->render_group_bar($groupbar);
             $data['userselector'] = [
                 'courseid' => $courseid,
                 'content' => $userreportrenderer->users_selector(get_course($courseid),

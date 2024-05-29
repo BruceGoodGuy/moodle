@@ -14,40 +14,74 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace core\output;
 /**
- * This class sets a general groups bar on the action bar menu.
+ * General groups bar on the action bar menu.
  *
- * @package    core
- * @category   output
+ * @package    core_group
  * @copyright  2024 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class groups_bar {
+namespace core_group\output;
+defined('MOODLE_INTERNAL') || die();
+
+use renderable;
+use templatable;
+use stdClass;
+use renderer_base;
+use \core\output\comboboxsearch;
+
+/**
+ * Group details page class.
+ *
+ * @package    core_group
+ * @copyright  2024 The Open University.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class groups_action_bar implements renderable, templatable {
+
+    /** @var stdClass $course An object with the course information. */
+    protected $course;
+    /** @var \cm_info|null $cm An cm object. */
+    protected $cm;
+    /** @var ?string $groupactionbaseurl The base URL for the group action. */
+    protected $groupactionbaseurl;
 
     /**
-     * Renders the group selector trigger element.
+     * Group action bar constructor.
      *
-     * @param \stdClass $course The course object.
-     * @param mixed $output Output object.
-     * @param \cm_info|null $cm cm info object.
+     * @param stdClass $course The course object.
+     * @param \cm_info|null $cm CM info object.
      * @param string|null $groupactionbaseurl The base URL for the group action.
-     * @return string|null The raw HTML to render.
      */
-    public static function group_selector(\stdClass $course, mixed $output, \cm_info $cm = null,
-            ?string $groupactionbaseurl = null): ?string {
+    public function __construct(stdClass $course, \cm_info $cm = null,
+            ?string $groupactionbaseurl = null) {
+        $this->course = $course;
+        if (!is_null($cm)) {
+            $this->cm = $cm;
+        }
+        if (!is_null($groupactionbaseurl)) {
+            $this->groupactionbaseurl = $groupactionbaseurl;
+        }
+    }
 
-        if ($groupactionbaseurl !== null) {
+    /**
+     * Export the data.
+     *
+     * @param renderer_base $output
+     * @return ?array
+     */
+    public function export_for_template(renderer_base $output): ?array {
+        if ($this->groupactionbaseurl !== null) {
             debugging(
                 'The $groupactionbaseurl argument has been deprecated. Please remove it from your method calls.',
                 DEBUG_DEVELOPER,
             );
         }
 
-        if (is_null($cm)) {
-            $groupmode = $course->groupmode;
+        if (is_null($this->cm)) {
+            $groupmode = $this->course->groupmode;
         } else {
-            $groupmode = groups_get_activity_groupmode($cm);
+            $groupmode = groups_get_activity_groupmode($this->cm);
         }
         // Make sure that group mode is enabled.
         if (!$groupmode) {
@@ -55,8 +89,8 @@ class groups_bar {
         }
 
         $sbody = $output->render_from_template('core_group/comboboxsearch/searchbody', [
-            'courseid' => $course->id,
-            'cmid' => $cm->id ?? null,
+            'courseid' => $this->course->id,
+            'cmid' => $this->cm->id ?? null,
             'currentvalue' => optional_param('groupsearchvalue', '', PARAM_NOTAGS),
             'instance' => rand(),
         ]);
@@ -66,7 +100,7 @@ class groups_bar {
 
         $buttondata = ['label' => $label];
 
-        [$context, $activegroup] = self::get_group_info($course, $cm, $groupmode);
+        [$context, $activegroup] = $this->get_group_info($this->course, $this->cm, $groupmode);
 
         $buttondata['group'] = $activegroup;
 
@@ -91,8 +125,7 @@ class groups_bar {
             $activegroup,
         );
 
-        return $output->render_from_template($groupdropdown->get_template(),
-            $groupdropdown->export_for_template($output));
+        return $groupdropdown->export_for_template($output);
     }
 
     /**
@@ -103,7 +136,7 @@ class groups_bar {
      * @param int $groupmode Group mode data.
      * @return array Group info data context (course or module) and group active.
      */
-    private static function get_group_info(\stdClass $course, ?\cm_info $cm, int $groupmode): array {
+    private function get_group_info(\stdClass $course, ?\cm_info $cm, int $groupmode): array {
         global $USER;
 
         // Determine the context based on $cm.

@@ -61,14 +61,15 @@ class quiz_basic_action_bar implements templatable, renderable {
      * @throws \moodle_exception
      */
     public function export_for_template(\renderer_base $output): array {
-        global $USER;
+        global $USER, $PAGE;
         $cm = $this->cm;
         $course = $cm->get_course();
         // Get the data used to output the general navigation selector.
         $generalnavselector = new navigation_action_bar($this->context);
         $data = $generalnavselector->export_for_template($output);
-        $data['groupselector'] = \core\output\groups_bar::group_selector($course,
-            $output, $cm);
+        $grouprenderer = $PAGE->get_renderer('core_group');
+        $groupbar = new \core_group\output\groups_action_bar($course, $cm);
+        $data['groupselector'] = $grouprenderer->render_group_bar($groupbar);
 
         if ($course->groupmode == VISIBLEGROUPS || has_capability('moodle/site:accessallgroups', $this->context)) {
             $allowedgroups = groups_get_all_groups($course->id, 0, $course->defaultgroupingid);
