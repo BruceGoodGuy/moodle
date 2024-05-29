@@ -66,7 +66,7 @@ class update_page_break extends external_api {
         $quiz = $quizobj->get_quiz();
         quiz_delete_previews($quiz);
 
-        return ['slots' => $json];
+        return ['slots' => json_encode($json)];
     }
 
     /**

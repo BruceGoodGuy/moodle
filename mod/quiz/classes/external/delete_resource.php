@@ -46,14 +46,14 @@ class delete_resource extends external_api {
         return new external_function_parameters([
             'id' => new external_value(PARAM_INT, 'The question id'),
             'quizid' => new external_value(PARAM_INT, 'The quiz id to get section title'),
-            'newshuffle' => new external_value(PARAM_TEXT, 'The new shuffle of the questions'),
+//            'newshuffle' => new external_value(PARAM_TEXT, 'The new shuffle of the questions'),
         ]);
     }
 
     /**
      * Update grade items to this quiz.
      */
-    public static function execute(int $id, int $quizid, string $newshuffle) {
+    public static function execute(int $id, int $quizid) {
         global $DB;
         $quizobj = quiz_settings::create($quizid);
         require_capability('mod/quiz:manage', $quizobj->get_context());

@@ -45,14 +45,14 @@ class update_max_mark extends external_api {
         return new external_function_parameters([
             'id' => new external_value(PARAM_INT, 'The question id'),
             'quizid' => new external_value(PARAM_INT, 'The quiz id to get section title'),
-            'maxmark' => new external_value(PARAM_FLOAT, 'The maxmark'),
+            'maxmark' => new external_value(PARAM_TEXT, 'The maxmark'),
         ]);
     }
 
     /**
      * Update grade items to this quiz.
      */
-    public static function execute(int $id, int $quizid, int $maxmark) {
+    public static function execute(int $id, int $quizid, mixed $maxmark) {
         $quizobj = quiz_settings::create($quizid);
         require_capability('mod/quiz:manage', $quizobj->get_context());
         self::validate_context($quizobj->get_context());

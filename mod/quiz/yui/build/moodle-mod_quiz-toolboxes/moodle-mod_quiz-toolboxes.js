@@ -816,6 +816,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
 
 M.mod_quiz.resource_toolbox = null;
 M.mod_quiz.init_resource_toolbox = function(config) {
+    console.log("config", config);
     M.mod_quiz.resource_toolbox = new RESOURCETOOLBOX(config);
     return M.mod_quiz.resource_toolbox;
 };
@@ -865,7 +866,6 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
      */
     initializer: function() {
         M.mod_quiz.quizbase.register_module(this);
-
         BODY.delegate('key', this.handle_data_action, 'down:enter', SELECTOR.ACTIVITYACTION, this);
         Y.delegate('click', this.handle_data_action, BODY, SELECTOR.ACTIVITYACTION, this);
         Y.delegate('change', this.handle_data_action, BODY, SELECTOR.EDITSHUFFLEQUESTIONSACTION, this);

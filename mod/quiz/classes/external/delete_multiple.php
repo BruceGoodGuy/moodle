@@ -51,7 +51,7 @@ class delete_multiple extends external_api {
     /**
      * Update grade items to this quiz.
      */
-    public static function execute(int $ids, int $quizid) {
+    public static function execute(string $ids, int $quizid) {
         global $DB;
         $quizobj = quiz_settings::create($quizid);
         require_capability('mod/quiz:manage', $quizobj->get_context());

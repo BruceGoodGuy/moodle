@@ -293,6 +293,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      */
     initializer: function() {
         M.mod_quiz.quizbase.register_module(this);
+        console.log(SELECTOR.DEPENDENCY_LINK);
         Y.delegate('click', this.handle_data_action, BODY, SELECTOR.ACTIVITYACTION, this);
         Y.delegate('click', this.handle_data_action, BODY, SELECTOR.DEPENDENCY_LINK, this);
         this.initialise_select_multiple();
@@ -307,6 +308,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      * @protected
      */
     initialise_select_multiple: function() {
+        console.log("con chim")
         // Click select multiple button to show the select all options.
         Y.one(SELECTOR.SELECTMULTIPLEBUTTON).on('click', function(e) {
             e.preventDefault();
@@ -455,6 +457,8 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
     find_sections_that_would_become_empty: function() {
         var section;
         var sectionnodes = Y.all(SELECTOR.SECTIONLI);
+        console.log(sectionnodes);
+        console.log(sectionnodes.size());
 
         if (sectionnodes.size() > 1) {
             sectionnodes.some(function(node) {
@@ -685,6 +689,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      * @param {Node} activity  The activity whose maxmark we were altering.
      */
     edit_maxmark_clear: function(activity) {
+        console.log("voday ne");
         // Detach all listen events to prevent duplicate triggers
         new Y.EventHandle(this.editmaxmarkevents).detach();
 
