@@ -111,7 +111,7 @@ class quiz_grading_report extends report_base {
 
         // Check permissions.
         $this->context = context_module::instance($this->cm->id);
-        require_capability('mod/quiz:grade', $this->context);
+        $this->has_permission($this->context);
         $shownames = has_capability('quiz/grading:viewstudentnames', $this->context);
         // Whether the current user can see custom user fields.
         $showcustomfields = has_capability('quiz/grading:viewidnumber', $this->context);
@@ -705,6 +705,10 @@ class quiz_grading_report extends report_base {
         global $PAGE;
         $this->renderer = $PAGE->get_renderer('quiz_grading');
         parent::print_header_and_tabs($cm, $course, $quiz, $reportmode);
+    }
+
+    public function has_permission(context $context): void {
+        require_capability('mod/quiz:grade', $context);
     }
 
     /**

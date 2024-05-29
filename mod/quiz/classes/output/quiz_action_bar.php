@@ -63,15 +63,6 @@ class quiz_action_bar implements templatable, renderable {
     }
 
     /**
-     * Returns the template for the action bar.
-     *
-     * @return string
-     */
-    public function get_template(): string {
-        return 'core/action_bar';
-    }
-
-    /**
      * Export the data for the mustache template.
      *
      * @param \renderer_base $output renderer to be used to render the action bar elements.
@@ -84,7 +75,7 @@ class quiz_action_bar implements templatable, renderable {
         $cm = $this->options->cm;
         $course = $cm->get_course();
         // Get the data used to output the general navigation selector.
-        $generalnavselector = new general_action_bar($this->context, $this->reportmode, $this->options);
+        $generalnavselector = new navigation_action_bar($this->context);
         $data = $generalnavselector->export_for_template($output);
         // Prepare url param.
         $url = $this->options->get_url();

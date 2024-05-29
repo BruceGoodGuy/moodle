@@ -119,7 +119,7 @@ abstract class report_base {
         $PAGE->requires->js_call_amd('core/searchwidget/user', 'init', [$params]);
         $actionbar = new \mod_quiz\output\quiz_action_bar(\context_module::instance($cm->id), $reportmode,
             $options);
-        echo $renderer->render_action_bar($actionbar);
+        echo $renderer->render($actionbar);
     }
 
     /**
@@ -145,6 +145,26 @@ abstract class report_base {
         $actionbar = new \mod_quiz\output\quiz_basic_action_bar(\context_module::instance($cm->id),
             $reportmode, $cm, $params->params);
 
-        echo $renderer->render_action_bar($actionbar);
+        echo $renderer->render($actionbar);
+    }
+
+    /**
+     * Get necessary data for the report.
+     *
+     * @param stdClass $quiz The quiz object.
+     * @param \cm_info $cm The course_module object.
+     * @param stdClass $course The course object.
+     * @return array The report info array contains option class, table class and allowed joins.
+     */
+    public function setup_report_data(stdClass $quiz, \cm_info $cm, stdClass $course): array {
+        return [];
+    }
+
+    /**
+     * Get necessary data for the report.
+     *
+     * @param context $context the context to check the capability in.
+     * */
+    public function has_permission(context $context): void {
     }
 }

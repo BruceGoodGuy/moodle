@@ -53,8 +53,8 @@ class get_users_in_report extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'cmid' => new external_value(PARAM_INT, 'The cmid.'),
-            'mode' => new external_value(PARAM_NOTAGS, 'Report mode'),
-            'params' => new external_value(PARAM_NOTAGS, 'Additional parameters'),
+            'mode' => new external_value(PARAM_ALPHA, 'Report mode'),
+            'params' => new external_value(PARAM_RAW_TRIMMED, 'Additional parameters'),
         ]);
     }
 
@@ -97,6 +97,8 @@ class get_users_in_report extends external_api {
 
         $report = new $reportclassname();
         $context = $quizobj->get_context();
+        // Check access permission.
+        $report->has_permission($context);
         $data = $report->setup_report_data($quiz, $cm, $course, $context);
         if (empty($data)) {
             return [
