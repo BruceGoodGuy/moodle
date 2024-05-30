@@ -342,10 +342,9 @@ class quiz_grading_report extends report_base {
         global $PAGE, $OUTPUT;
 
         $PAGE->set_navigation_overflow_state(false);
-        $this->print_header_and_tabs($this->cm, $this->course, $this->quiz, 'statistics');
+        $this->print_header_and_tabs($this->cm, $this->course, $this->quiz, 'grading');
         $PAGE->set_navigation_overflow_state(true);
-        $this->print_basic_action_bar('grading', $this->list_questions_url(), $this->cm);
-
+        $this->print_action_bar('grading', null, $this->cm, $this->list_questions_url());
         // Get the current group for the user looking at the report.
         $currentgroup = $this->get_current_group($this->cm, $this->course, $this->context);
         if ($currentgroup == self::NO_GROUPS_ALLOWED) {

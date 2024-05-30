@@ -29,7 +29,7 @@ use renderable;
  * @copyright  2024 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class navigation_action_bar implements templatable, renderable {
+class action_selector implements templatable, renderable {
 
     /** @var \context $context The context object. */
     protected \context $context;

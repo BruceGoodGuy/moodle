@@ -37,7 +37,7 @@ use core\output\comboboxsearch;
  * @copyright  2024 The Open University.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class groups_action_bar implements renderable, templatable {
+class group_selector implements renderable, templatable {
 
     /** @var stdClass $course An object with the course information. */
     protected $course;

@@ -153,7 +153,7 @@ class quiz_statistics_report extends report_base {
             $PAGE->set_navigation_overflow_state(false);
             $this->print_header_and_tabs($cm, $course, $quiz, 'statistics');
             $PAGE->set_navigation_overflow_state(true);
-            $this->print_basic_action_bar('statistics', $reporturl, $cm);
+            $this->print_action_bar('statistics', null, $cm, $reporturl);
         }
 
         if (!$nostudentsingroup) {

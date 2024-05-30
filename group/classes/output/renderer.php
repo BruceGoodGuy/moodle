@@ -62,10 +62,10 @@ class renderer extends plugin_renderer_base {
     /**
      * Defer to template.
      *
-     * @param groups_action_bar $page Group action bar page object.
+     * @param group_selector $page Group action bar page object.
      * @return string HTML to render the group action bar.
      */
-    public function render_group_bar(groups_action_bar $page) {
+    public function render_group_bar(group_selector $page) {
         $data = $page->export_for_template($this);
         if (is_null($data)) {
             return null;
