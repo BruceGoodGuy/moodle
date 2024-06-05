@@ -211,8 +211,8 @@ $PAGE->requires->js_call_amd('core_question/question_engine');
 
 // Questions wrapper start.
 echo html_writer::start_tag('div', ['class' => 'mod-quiz-edit-content']);
-
-echo $output->edit_page($quizobj, $structure, $contexts, $thispageurl, $pagevars);
+$editpage = new \mod_quiz\output\edit_page($structure, $thispageurl, $quizobj, $contexts, $pagevars);
+echo $output->render($editpage);
 
 // Questions wrapper end.
 echo html_writer::end_tag('div');

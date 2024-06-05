@@ -1,0 +1,85 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_quiz/section
+
+    Actions bar at the top of the various quiz edit pages.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * overridesnav - must alwasy be present.
+    * addoverridebutton - should only be present if the user has permission to add a new override.
+
+    Example context (json):
+    {
+        "startsection": [
+            {
+                "sectionid": "1",
+                "sectionstyle": "shuffled",
+                "sectionheadingclass": "instancesection",
+                "sectionheadingtext": "Section 1",
+                "editsectionheadingicon": "<i class="editsectionheading"></i>",
+                "removeicon": "<i class="removeicon"></i>",
+                "shufflequestion": "<span class="shuffle-progress"><input type="checkbox"></span>",
+                "questions": "<div class="mod-indent-outer"></div>",
+                "lastsection": "<div class="last-add-menu"></div>"
+            },
+            {
+                "sectionid": "2",
+                "sectionstyle": "shuffled",
+                "sectionheadingclass": "instancesection",
+                "sectionheadingtext": "Section 2",
+                "editsectionheadingicon": "<i class="editsectionheading"></i>",
+                "removeicon": "<i class="removeicon"></i>",
+                "shufflequestion": "<span class="shuffle-progress"><input type="checkbox"></span>",
+                "questions": "<div class="mod-indent-outer"></div>",
+                "lastsection": "<div class="last-add-menu"></div>"
+            }
+        ]
+    }
+}}
+{{#section}}
+<li id="section-{{sectionid}}" class="section main clearfix {{sectionstyle}}" role="presentation"
+  data-sectionname="{{sectionheadingtext}}">
+  <div class="content">
+    <div class="section-heading">
+      <div class="instancesectioncontainer">
+        <h3>
+          <span class="sectioninstance">
+            <span class="{{sectionheadingclass}}">{{sectionheadingtext}}</span>
+          </span>
+        </h3>
+        {{{editsectionheadingicon}}}
+      </div>
+      {{{removeicon}}}
+      {{{shufflequestion}}}
+    </div>
+    <ul class="section img-text">
+        {{{questions}}}
+        {{{lastsection}}}
+    </ul>
+  </div>
+</li>
+{{/section}}
+
+
+
