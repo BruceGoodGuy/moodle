@@ -6,6 +6,7 @@
  *
  * @module mod_quiz-resource-toolbox
  * @namespace M.mod_quiz.resource_toolbox
+ * @deprecated since Moodle 4.5
  */
 
 /**

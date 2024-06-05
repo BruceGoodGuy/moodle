@@ -6,6 +6,7 @@
  *
  * @module moodle-mod_quiz-toolboxes
  * @namespace M.mod_quiz.toolboxes
+ * @deprecated since Moodle 4.5
  */
 
 /**

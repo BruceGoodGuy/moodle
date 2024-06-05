@@ -51,6 +51,8 @@ class edit_renderer extends \plugin_renderer_base {
      * @param \core_question\local\bank\question_edit_contexts $contexts the relevant question bank contexts.
      * @param \moodle_url $pageurl the canonical URL of this page.
      * @param array $pagevars the variables from {@link question_edit_setup()}.
+     * @deprecated since 4.5, use quiz::edit_page instead.
+     *
      * @return string HTML to output.
      */
     public function edit_page(\mod_quiz\quiz_settings $quizobj, structure $structure,
@@ -156,6 +158,8 @@ class edit_renderer extends \plugin_renderer_base {
      * Render the status bar.
      *
      * @param structure $structure the quiz structure.
+     * @deprecated since 4.5 use \mod_quiz\output\quiz_information instead.
+     *
      * @return string HTML to output.
      */
     public function quiz_information(structure $structure) {
@@ -175,6 +179,8 @@ class edit_renderer extends \plugin_renderer_base {
      *
      * @param structure $structure the quiz structure.
      * @param \moodle_url $pageurl the canonical URL of this page.
+     * @deprecated since 4.5 use \mod_quiz\output\maximum_grade_input instead.
+     *
      * @return string HTML to output.
      */
     public function maximum_grade_input($structure, \moodle_url $pageurl) {
@@ -349,6 +355,8 @@ class edit_renderer extends \plugin_renderer_base {
      * Render the total marks available for the quiz.
      *
      * @param \stdClass $quiz the quiz settings from the database.
+     * @deprecated since 4.5 use \mod_quiz\output\total_marks instead.
+     *
      * @return string HTML to output.
      */
     public function total_marks($quiz) {
@@ -491,6 +499,8 @@ class edit_renderer extends \plugin_renderer_base {
      * Render an icon to remove a section from the quiz.
      *
      * @param stdClass $section the section to be removed.
+     * @deprecated since 4.5.
+     *
      * @return string HTML to output.
      */
     public function section_remove_icon($section) {
@@ -512,6 +522,8 @@ class edit_renderer extends \plugin_renderer_base {
      * @param \core_question\local\bank\question_edit_contexts $contexts the relevant question bank contexts.
      * @param array $pagevars the variables from {@link \question_edit_setup()}.
      * @param \moodle_url $pageurl the canonical URL of this page.
+     * @deprecated since 4.5.
+     *
      * @return string HTML to output.
      */
     public function questions_in_section(structure $structure, $section,
@@ -639,6 +651,8 @@ class edit_renderer extends \plugin_renderer_base {
      * @param int $page the page number that this menu will add to.
      * @param \moodle_url $pageurl the canonical URL of this page.
      * @param array $pagevars the variables from {@link \question_edit_setup()}.
+     * @deprecated since 4.5.
+     *
      * @return array the actions.
      */
     public function edit_menu_actions(structure $structure, $page,
