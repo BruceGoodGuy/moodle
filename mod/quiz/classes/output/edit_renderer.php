@@ -105,6 +105,18 @@ class edit_renderer extends \plugin_renderer_base {
 
         $output .= $this->end_section_list();
 
+        // Bring the config data to the renderer to set it as an attribute element,
+        // thus avoiding warning messages due to passing too much data through JavaScript.
+        $config = new \stdClass();
+        $config->resourceurl = '/mod/quiz/edit_rest.php';
+        $config->sectionurl = '/mod/quiz/edit_rest.php';
+        $config->pageparams = [];
+        $config->questiondecimalpoints = $structure->get_decimal_places_for_question_marks();
+        $config->pagehtml = $this->new_page_template($structure, $contexts, $pagevars, $pageurl);
+        $config->addpageiconhtml = $this->add_page_icon_template($structure);
+
+        $output .= html_writer::tag('div', null, ['class' => 'config-toolbox d-none', 'data-config' => json_encode($config)]);
+
         // Initialise the JavaScript.
         $this->initialise_editing_javascript($structure, $contexts, $pagevars, $pageurl);
 
@@ -1185,28 +1197,40 @@ class edit_renderer extends \plugin_renderer_base {
         $config->pagehtml = $this->new_page_template($structure, $contexts, $pagevars, $pageurl);
         $config->addpageiconhtml = $this->add_page_icon_template($structure);
 
-        $this->page->requires->yui_module('moodle-mod_quiz-toolboxes',
-                'M.mod_quiz.init_resource_toolbox',
-                [[
-                        'courseid' => $structure->get_courseid(),
-                        'quizid' => $structure->get_quizid(),
-                        'ajaxurl' => $config->resourceurl,
-                        'config' => $config,
-                ]]
-        );
+//        $this->page->requires->yui_module('moodle-mod_quiz-toolboxes',
+//                'M.mod_quiz.init_resource_toolbox',
+//                [[
+//                        'courseid' => $structure->get_courseid(),
+//                        'quizid' => $structure->get_quizid(),
+//                        'ajaxurl' => $config->resourceurl,
+//                        'config' => $config,
+//                ]]
+//        );
+        $this->page->requires->js_call_amd('mod_quiz/quiz_toolboxes', 'initResourceToolbox', [
+            'courseid' => $structure->get_courseid(),
+            'quizid' => $structure->get_quizid(),
+            'ajaxurl' => $config->resourceurl,
+//            'config' => $config,
+        ]);
         unset($config->pagehtml);
         unset($config->addpageiconhtml);
 
         $this->page->requires->strings_for_js(['areyousureremoveselected'], 'quiz');
-        $this->page->requires->yui_module('moodle-mod_quiz-toolboxes',
-                'M.mod_quiz.init_section_toolbox',
-                [[
-                        'courseid' => $structure,
-                        'quizid' => $structure->get_quizid(),
-                        'ajaxurl' => $config->sectionurl,
-                        'config' => $config,
-                ]]
-        );
+        $this->page->requires->js_call_amd('mod_quiz/quiz_toolboxes', 'initSectionToolbox', [
+            'courseid' => $structure->get_courseid(),
+            'quizid' => $structure->get_quizid(),
+            'ajaxurl' => $config->resourceurl,
+//            'config' => $config,
+        ]);
+//        $this->page->requires->yui_module('moodle-mod_quiz-toolboxes',
+//                'M.mod_quiz.init_section_toolbox',
+//                [[
+//                        'courseid' => $structure,
+//                        'quizid' => $structure->get_quizid(),
+//                        'ajaxurl' => $config->sectionurl,
+//                        'config' => $config,
+//                ]]
+//        );
 
         $this->page->requires->yui_module('moodle-mod_quiz-dragdrop', 'M.mod_quiz.init_section_dragdrop',
                 [[
