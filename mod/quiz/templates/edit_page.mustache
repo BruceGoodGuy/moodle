@@ -52,6 +52,14 @@
         "totalmarks": {
             "totalmark": "10.00" />
         },
+        "configdata": {
+            "questiondecimalpoints": 0,
+            "pagehtml": "<html></html>",
+            "addpageiconhtml": ""
+        },
+        "langstring": {
+            "question": "question"
+        },
         "startsection": [
             {
                 "sectionid": "1",
@@ -98,6 +106,7 @@
         {{#selectmultiplecontrols}}
         {{> mod_quiz/selectmultiple_controls}}
         {{/selectmultiplecontrols}}
+    <div class="d-none config-toolbox" data-config="{{configdata}}" data-lang="{{langstring}}"></div>
     <ul class="slots" role="presentation">
         {{>mod_quiz/section}}
     </ul>

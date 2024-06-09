@@ -86,6 +86,15 @@ class edit_page implements renderable, templatable {
         $selectmultiplecontrols = $selectmultiplecontrols->export_for_template($output);
         $data['selectmultiplecontrols'] = $selectmultiplecontrols;
 
+        // Bring the config data to the renderer to set it as an attribute element,
+        // thus avoiding warning messages due to passing too much data through JavaScript.
+        $config = new \stdClass();
+        $config->questiondecimalpoints = $this->structure->get_decimal_places_for_question_marks();
+        $config->pagehtml = $this->new_page_template($this->structure, $this->contexts, $this->pagevars,
+            $this->pageurl);
+        $config->addpageiconhtml = $this->add_page_icon_template($this->structure);
+        $data['configdata'] = json_encode($config);
+        $data['langstring'] = json_encode(['question' => get_string('question', 'moodle')]);
         $section = new \mod_quiz\output\section($this->structure, $this->pageurl,
             $this->quizobj, $this->contexts, $this->pagevars);
         $section = $section->export_for_template($output);
@@ -137,28 +146,18 @@ class edit_page implements renderable, templatable {
         $config->pagehtml = $this->new_page_template($structure, $contexts, $pagevars, $pageurl);
         $config->addpageiconhtml = $this->add_page_icon_template($structure);
 
-        $PAGE->requires->yui_module('moodle-mod_quiz-toolboxes',
-            'M.mod_quiz.init_resource_toolbox',
-            [[
-                'courseid' => $structure->get_courseid(),
-                'quizid' => $structure->get_quizid(),
-                'ajaxurl' => $config->resourceurl,
-                'config' => $config,
-            ]]
-        );
+        $PAGE->requires->js_call_amd('mod_quiz/quiz_toolboxes', 'initResourceToolbox', [
+            'courseid' => $structure->get_courseid(),
+            'quizid' => $structure->get_quizid(),
+        ]);
         unset($config->pagehtml);
         unset($config->addpageiconhtml);
 
         $PAGE->requires->strings_for_js(['areyousureremoveselected'], 'quiz');
-        $PAGE->requires->yui_module('moodle-mod_quiz-toolboxes',
-            'M.mod_quiz.init_section_toolbox',
-            [[
-                'courseid' => $structure,
-                'quizid' => $structure->get_quizid(),
-                'ajaxurl' => $config->sectionurl,
-                'config' => $config,
-            ]]
-        );
+        $PAGE->requires->js_call_amd('mod_quiz/quiz_toolboxes', 'initSectionToolbox', [
+            'courseid' => $structure->get_courseid(),
+            'quizid' => $structure->get_quizid(),
+        ]);
 
         $PAGE->requires->yui_module('moodle-mod_quiz-dragdrop', 'M.mod_quiz.init_section_dragdrop',
             [[
