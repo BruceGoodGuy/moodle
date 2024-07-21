@@ -115,11 +115,7 @@
                             {{summarks}}
                         </td>
                         <td class="align-middle text-center py-1">
-                            {{^isused}}
-                                <a href="#" data-action-delete="1">
-                                    {{#pix}} t/delete, core, {{#str}} gradeitemdelete, quiz, {{{name}}} {{/str}} {{/pix}}
-                                </a>
-                            {{/isused}}
+                            {{>mod_quiz/cellmenu}}
                         </td>
                     </tr>
                 {{/gradeitems}}

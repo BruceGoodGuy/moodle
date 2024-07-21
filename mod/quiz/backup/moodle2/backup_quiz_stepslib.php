@@ -50,6 +50,10 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
 
         $quizgradeitem = new backup_nested_element('quiz_grade_item', ['id'], ['sortorder', 'name']);
 
+        $quizgradeitemfeedbacks = new backup_nested_element('quiz_grade_item_feedbacks');
+        $quizgradeitemfeedback = new backup_nested_element('quiz_grade_item_feedback', ['id'], ['quizid',
+            'gradeitemid', 'feedbacktext', 'feedbacktextformat', 'mingrade', 'maxgrade']);
+
         $qinstances = new backup_nested_element('question_instances');
 
         $qinstance = new backup_nested_element('question_instance', ['id'],
@@ -95,6 +99,9 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
         $quiz->add_child($quizgradeitems);
         $quizgradeitems->add_child($quizgradeitem);
 
+        $quiz->add_child($quizgradeitemfeedbacks);
+        $quizgradeitemfeedbacks->add_child($quizgradeitemfeedback);
+
         $quiz->add_child($qinstances);
         $qinstances->add_child($qinstance);
 
@@ -117,6 +124,8 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
         $quiz->set_source_table('quiz', ['id' => backup::VAR_ACTIVITYID]);
 
         $quizgradeitem->set_source_table('quiz_grade_items', ['quizid' => backup::VAR_PARENTID]);
+
+        $quizgradeitemfeedback->set_source_table('quiz_grade_item_feedbacks', ['quizid' => backup::VAR_PARENTID]);
 
         $qinstance->set_source_table('quiz_slots', ['quizid' => backup::VAR_PARENTID]);
 
@@ -162,6 +171,7 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
         // Define file annotations.
         $quiz->annotate_files('mod_quiz', 'intro', null); // This file area hasn't itemid.
         $feedback->annotate_files('mod_quiz', 'feedback', 'id');
+        $quizgradeitemfeedback->annotate_files('mod_quiz', 'grade_item_feedback', 'id');
 
         // Return the root element (quiz), wrapped into standard activity structure.
         return $this->prepare_activity_structure($quiz);

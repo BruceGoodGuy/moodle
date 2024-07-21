@@ -132,6 +132,33 @@ function xmldb_quiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023112402, 'quiz');
     }
 
+    if ($oldversion < 2024071700) {
+
+        // Define table quiz_grade_item_feedbacks to be created.
+        $table = new xmldb_table('quiz_grade_item_feedbacks');
+
+        // Adding fields to table quiz_grade_item_feedbacks.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('quizid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('gradeitemid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('feedbacktext', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('feedbacktextformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('mingrade', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('maxgrade', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table quiz_grade_item_feedbacks.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('gradeitemid', XMLDB_KEY_FOREIGN, ['gradeitemid'], 'quiz_grade_items', ['id']);
+        $table->add_key('quizid', XMLDB_KEY_FOREIGN, ['quizid'], 'quiz', ['id']);
+
+        // Conditionally launch create table for quiz_grade_item_feedbacks.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Quiz savepoint reached.
+        upgrade_mod_savepoint(true, 2024071700, 'quiz');
+    }
     // Automatically generated Moodle v4.4.0 release upgrade line.
     // Put any upgrade step following this.
 

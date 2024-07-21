@@ -44,11 +44,18 @@ Feature: Setup multiple grades for a quiz
 
     Then I should see "Grade items"
 
-    And "Delete" "icon" should not exist in the "Intuition" "table_row"
+    And I open the action menu in "Intuition" "table_row"
+    And I should not see "Delete" in the "Intuition" "table_row"
     And "Intuition" row "Total of marks" column of "mod_quiz-grade-item-list" table should contain "2.00"
-    And "Delete" "icon" should not exist in the "Intelligence" "table_row"
+    # To hide the action menu.
+    And I click on "Edit" "link" in the "Intuition" "table_row"
+    And I open the action menu in "Intelligence" "table_row"
+    And I should not see "Delete" in the "Intelligence" "table_row"
+    # To hide the action menu.
+    And I click on "Edit" "link" in the "Intelligence" "table_row"
     And "Intelligence" row "Total of marks" column of "mod_quiz-grade-item-list" table should contain "1.00"
-    And "Delete" "icon" should exist in the "Unused grade item" "table_row"
+    And I open the action menu in "Unused grade item" "table_row"
+    And I should see "Delete" in the "Unused grade item" "table_row"
     And "Unused grade item" row "Total of marks" column of "mod_quiz-grade-item-list" table should contain "-"
 
     And the field "Question A" matches value "Intuition"
@@ -101,7 +108,8 @@ Feature: Setup multiple grades for a quiz
       | question   | page |
       | Question A | 1    |
     When I am on the "Quiz 1" "mod_quiz > multiple grades setup" page logged in as teacher
-    And I follow "Delete grade item Unused grade item"
+    And I open the action menu in "Unused grade item" "table_row"
+    And I click on "Delete" "link" in the "Unused grade item" "table_row"
     Then I should not see "Unused grade item"
     And I should see "Create grade items within your quiz. Allocate questions or quiz sections to these grade items to break down grade results into different areas."
 
@@ -114,12 +122,15 @@ Feature: Setup multiple grades for a quiz
       | question   | page |
       | Question A | 1    |
     When I am on the "Quiz 1" "mod_quiz > multiple grades setup" page logged in as teacher
-    And "Delete" "icon" should exist in the "Intuition" "table_row"
+    And I open the action menu in "Intuition" "table_row"
+    And I should see "Delete" in the "Intuition" "table_row"
     And I set the field "Question A" to "Intuition"
-    Then  "Delete" "icon" should not exist in the "Intuition" "table_row"
+    And I open the action menu in "Intuition" "table_row"
+    And I should not see "Delete" in the "Intuition" "table_row"
     And the field "Question A" matches value "Intuition"
     And I set the field "Question A" to "[none]"
-    And "Delete" "icon" should exist in the "Intuition" "table_row"
+    And I open the action menu in "Intuition" "table_row"
+    And I should see "Delete" in the "Intuition" "table_row"
     And the field "Question A" matches value "[none]"
 
   @javascript

@@ -62,6 +62,8 @@ class restore_quiz_activity_structure_step extends restore_questions_activity_st
         $this->add_subplugin_structure('quizaccess', $quiz);
 
         $paths[] = new restore_path_element('quiz_grade_item', '/activity/quiz/quiz_grade_items/quiz_grade_item');
+        $paths[] = new restore_path_element('quiz_grade_item_feedback',
+            '/activity/quiz/quiz_grade_item_feedbacks/quiz_grade_item_feedback');
         $quizquestioninstance = new restore_path_element('quiz_question_instance',
             '/activity/quiz/question_instances/question_instance');
         $paths[] = $quizquestioninstance;
@@ -338,6 +340,24 @@ class restore_quiz_activity_structure_step extends restore_questions_activity_st
         $oldid = $data->id;
         $newitemid = $DB->insert_record('quiz_grade_items', $data);
         $this->set_mapping('quiz_grade_item', $oldid, $newitemid, true);
+    }
+
+    /**
+     * Process a quiz grade items feedbacks.
+     *
+     * @param stdClass|array $data
+     */
+    protected function process_quiz_grade_item_feedback($data): void {
+        global $DB;
+
+        $data = (object) $data;
+        $data->quizid = $this->get_new_parentid('quiz');
+        $oldid = $data->id;
+        if (isset($data->gradeitemid)) {
+            $data->gradeitemid = $this->get_mappingid('quiz_grade_item', $data->gradeitemid);
+        }
+        $newitemid = $DB->insert_record('quiz_grade_item_feedbacks', $data);
+        $this->set_mapping('quiz_grade_item_feedback', $oldid, $newitemid, true);
     }
 
     /**

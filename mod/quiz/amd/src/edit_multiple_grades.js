@@ -27,8 +27,10 @@ import {addIconToContainer} from 'core/loadingicon';
 import Notification from 'core/notification';
 import Pending from 'core/pending';
 import {get_string as getString} from 'core/str';
-import {render as renderTemplate} from 'core/templates';
-import {replaceNode} from 'core/templates';
+import {render as renderTemplate, replaceNode, runTemplateJS, renderPix} from 'core/templates';
+import Modal from 'core/modal';
+import {prefetchStrings} from 'core/prefetch';
+import Fragment from 'core/fragment';
 
 /**
  * @type {Object} selectors used in this code.
@@ -47,6 +49,13 @@ const SELECTORS = {
     'slotList': 'table#mod_quiz-slot-list',
     'updateGradeItemLink': (id) => 'tr[data-quiz-grade-item-id="' + id + '"] .quickeditlink',
 };
+
+prefetchStrings('mod_quiz', [
+    'overallfeedback_for',
+    'insertfeedbackbefore',
+]);
+
+let modal;
 
 /**
  * Call the Ajax service to create a quiz grade item.
@@ -160,6 +169,343 @@ const callServicesAndReturnRenderingData = (methodCalls) => {
         });
     return Promise.all(fetchMany(methodCalls))
     .then(results => JSON.parse(results.at(-1)));
+};
+
+/**
+ * A function to handle the event of adding overall feedback for each grade item.
+ *
+ * @param {Event} e click event.
+ */
+const handleGradeItemAddFeedback = async(e) => {
+    e.preventDefault();
+    const pending = new Pending('add-overall-feedback');
+    const tableCell = e.target.closest('td');
+    const tableRow = tableCell.closest('tr');
+    const contextId = Number(e.target.closest('a').dataset.contextid);
+    const quizId = tableRow.closest('table').dataset.quizId;
+    const gradeItemId = tableRow.dataset.quizGradeItemId;
+    const rawName = tableRow.querySelector('th span.inplaceeditable').dataset.rawName;
+
+    // Crate a simple modal.
+    modal = await Modal.create({
+        title: getString('overallfeedback_for', 'mod_quiz', rawName),
+        body: '',
+        show: true,
+        removeOnClose: true,
+        large: true,
+        templateContext: {
+            classes: 'overallfeedback',
+        },
+    });
+
+    const modalBody = modal.getBody()[0];
+    // Set quiz ID and grade item ID for later actions.
+    modalBody.dataset.quizid = quizId;
+    modalBody.dataset.gradeItemId = gradeItemId;
+    // Start loading icon.
+    await addIconToContainer(modalBody, pending);
+    // Load existing overall feedback based on the specific grade item ID.
+    // If no feedback exists, display a sample feedback with a boundary of 100%.
+    const fragment = Fragment.loadFragment('mod_quiz', 'load_overall_feedback_data', contextId, {
+        quizId,
+        gradeItemId,
+    });
+
+    fragment.done(function(html, js) {
+        // Set to body.
+        // modalBody.innerHTML = html;
+        modal.setBody(html);
+        // Need to wait util html already appended into DOM.
+        setTimeout(() => {
+            // Run js.
+            runTemplateJS(js);
+        }, 500);
+        // Enable submit button.
+        updateStatusFooterButton(false);
+        // Add event for the divider.
+        modalBody.querySelectorAll('.divider button.feedbackadd-button').forEach(addFeedback => {
+            addFeedback.dataset.eventAttached = 'true';
+            addFeedback.addEventListener('click', e => {
+                e.preventDefault();
+                handleAddMoreFeedback(e, modalBody, contextId);
+            });
+        });
+        // Add events for every button in the footer.
+        modalBody.querySelectorAll('.modal-footer input[type="submit"]').forEach(input => {
+            input.addEventListener('click', handleSubmitModal);
+        });
+
+        pending.resolve();
+    });
+};
+
+/**
+ * A function to handle events when the user tries to click on the save or cancel button in a modal.
+ *
+ * @param {Event} e click event.
+ */
+const handleSubmitModal = (e) => {
+    e.preventDefault();
+    const target = e.currentTarget;
+    const action = target.dataset.action;
+    switch (action) {
+        case "cancel":
+            // Must destroy it to allow the editor JS to run when we reopen the modal.
+            modal.destroy();
+            break;
+        case "save":
+            // Validate and then save the feedback.
+            saveFeedback();
+            break;
+        default:
+            break;
+    }
+};
+
+/**
+ * Toggle the status of the footer buttons.
+ *
+ * @param {Boolean} status True indicates that the button is disabled..
+ */
+const updateStatusFooterButton = (status) => {
+    modal.getBody()[0].querySelectorAll('.modal-footer input').forEach(inputEl => {
+        inputEl.disabled = status;
+    });
+};
+
+/**
+ * Validate the form data and save the feedback if it's valid.
+ *
+ */
+const saveFeedback = async() => {
+    // Browse through every element in the modal form and collect them into an object.
+    const formData = collectFormData();
+    updateStatusFooterButton(true);
+    const gradeItemId = parseInt(modal.getBody()[0].dataset.gradeItemId);
+    const options = {
+        methodname: 'mod_quiz_save_overall_feedback_per_grade_item',
+        args: {
+            formdata: JSON.stringify(formData),
+            quizid: parseInt(modal.getBody()[0].dataset.quizid),
+            gradeitemid: parseInt(modal.getBody()[0].dataset.gradeItemId),
+        },
+    };
+
+    try {
+        // Validate form data and save it.
+        const result = await fetchMany([options])[0];
+        // Toggle error messages.
+        const errors = JSON.parse(result.errors);
+        displayErrors(errors);
+        // If the form data is valid.
+        if (errors.length === 0) {
+            // Update icon and title for the menu-item.
+            // Since the page does not reload, we must change it manually.
+            const addOverallFeedbackMenu = document.querySelector(SELECTORS.gradeItemList +
+                ` tr[data-quiz-grade-item-id="${gradeItemId}"] .moodle-actionmenu a.dropdown-item[data-action-add-feedback]`);
+            const {key, title} = await getIconFeedback(parseInt(result.total));
+            const icon = await renderPix(key, 'core', title);
+            addOverallFeedbackMenu.innerHTML = icon + title;
+            // Must destroy it to allow the editor JS to run when we reopen the modal.
+            modal.destroy();
+        }
+        updateStatusFooterButton(false);
+    } catch (e) {
+        updateStatusFooterButton(false);
+        Notification.exception(e);
+    }
+};
+
+/**
+ * Prepare the type icon and title before rendering the icon for updating menu items in the overall feedback dropdown list.
+ *
+ * @param {Number} totalFeedback Number of feedback entries in the grade item.
+ * @returns {Object} Return type of icon and title.
+ */
+const getIconFeedback = async(totalFeedback) => {
+    let title = '';
+    let key = 't/edit';
+    switch (totalFeedback) {
+        case 0:
+            title = await getString('addoverallfeedback', 'quiz');
+            key = 't/add';
+            break;
+        case 1:
+            title = await getString('editoverallfeedback1level', 'quiz');
+            break;
+        default:
+            title = await getString('editoverallfeedbacknlevels', 'quiz', totalFeedback);
+            break;
+    }
+
+    return {key, title};
+};
+
+/**
+ * Display error messages for every form element that exists in the errors object.
+ *
+ * @param {Object} errors Errors object.
+ */
+const displayErrors = (errors) => {
+    const body = modal.getBody()[0];
+    let feedbackTextIndex = 0;
+
+    // We need to go through all the input elements to display error messages
+    // for invalid inputs and clear error messages for valid ones.
+    body.querySelectorAll('form .fitem').forEach(el => {
+        // Check the container type. It can be static, text (boundaries), or editor (feedback).
+        const type = el.querySelector('[data-fieldtype]')?.dataset?.fieldtype;
+        switch (type) {
+            case 'text': {
+                const inputBoundary = el.querySelector('input[name^="feedbackboundaries"]');
+                const errorText = errors[inputBoundary.name];
+                const feedback = inputBoundary.closest('.felement').querySelector('.invalid-feedback');
+                if (errorText) {
+                    // If an error occurs with the feedback boundaries input, we need to display an error message.
+                    inputBoundary.classList.add('is-invalid');
+                    inputBoundary.setAttribute('autofocus', true);
+                    feedback.classList.add('d-block');
+                    feedback.innerText = errorText;
+                    inputBoundary.setAttribute('aria-describedby', feedback.id);
+                } else {
+                    // If the feedback boundaries input is valid, we need to remove the error message.
+                    inputBoundary.classList.remove('is-invalid');
+                    inputBoundary.removeAttribute('autofocus');
+                    feedback.classList.remove('d-block');
+                    feedback.innerText = '';
+                }
+            }
+                break;
+            case 'editor': {
+                const textAreaFeedback = el.querySelector('textarea[name^="feedbacktext"]');
+               // Skip the first editor when the boundary is 100%.
+                if (textAreaFeedback.id === 'id_feedbacktext_0_text') {
+                    break;
+                }
+                const errorText = errors[`feedbacktext[${feedbackTextIndex}]`];
+                const feedbackEl = el.querySelector('.invalid-feedback');
+                if (errorText) {
+                    feedbackEl.innerText = errorText;
+                    feedbackEl.classList.add('d-block');
+                } else {
+                    feedbackEl.innerText = '';
+                    feedbackEl.classList.remove('d-block');
+                }
+                feedbackTextIndex++;
+            }
+                break;
+            default:
+                break;
+        }
+    });
+};
+
+/**
+ * Collect form data in overall feedback form.
+ *
+ * @return {Array} Form data array.
+ */
+const collectFormData = () => {
+    const items = modal.getBody()[0].querySelectorAll('form .fitem');
+    const formData = [];
+    const itemData = {};
+    items.forEach((el) => {
+        const type = el.querySelector('[data-fieldtype]')?.dataset?.fieldtype;
+        if (type) {
+            switch (type) {
+                case 'static':
+                    // It's just sample data. It doesn't need to be true grade data.
+                    itemData.boundary = 11;
+                    break;
+                case 'text':
+                    itemData.boundary = el.querySelector('input[name^="feedbackboundaries"]').value;
+                    break;
+                case 'editor':
+                    itemData.feedback = {
+                        itemid: el.querySelector('input[type="hidden"][name$="[itemid]"]').value,
+                        format: el.querySelector('input[type="hidden"][name$="[format]"]').value,
+                        text: el.querySelector('textarea[name^="feedbacktext"]').value,
+                    };
+                    formData.push({...itemData});
+                    break;
+                default:
+                    break;
+            }
+        }
+    });
+
+    return formData;
+};
+
+/**
+ * A function to handle adding more feedback in the overall feedback modal.
+ *
+ * @param {Event} e click event.
+ * @param {HTMLElement} modalBody Modal body element.
+ * @param {Number} contextId Context id number.
+ */
+const handleAddMoreFeedback = async(e, modalBody, contextId) => {
+    const target = e.currentTarget;
+    const {after} = target.dataset;
+    const numberOfEditors = modalBody.querySelectorAll('textarea[name^=feedbacktext]').length;
+    const gradeItemId = modal.getBody()[0].dataset.gradeItemId;
+    const fragment = Fragment.loadFragment('mod_quiz', 'load_overall_feedback_form', contextId, {
+        after,
+        no: numberOfEditors,
+        gradeitemid: parseInt(gradeItemId),
+    });
+    const divider = modalBody.querySelector(`.modal-body .divider button[data-after="${after}"]`).closest('.divider');
+    fragment.done(function(html, js) {
+        divider.insertAdjacentHTML('afterend', html);
+        runTemplateJS(js);
+        recalculateFeedbackIndex(modalBody, after, contextId);
+    });
+};
+
+/**
+ * Every time a new feedback is added to the form, we need to calculate the order number and update it for all elements.
+ *
+ * @param {HTMLElement} modalBody Modal body element.
+ * @param {Number} after The order number used to detect the position to add new feedback.
+ * @param {Number} contextId Context id number.
+ */
+const recalculateFeedbackIndex = (modalBody, after, contextId) => {
+    const gradeBoundaryEls = modalBody.querySelectorAll('input[name^="feedbackboundaries"]');
+    const dividerButtonEls = modalBody.querySelectorAll('.divider button');
+    gradeBoundaryEls.forEach((el, key) => {
+        if (key >= after) {
+            // Re-update id or label for every elements.
+            const wrapItem = el.closest('.fitem');
+            const label = wrapItem.querySelector('label[id^="id_feedbackboundaries_"]');
+            const inputBoundary = wrapItem.querySelector('input[name^="feedbackboundaries"]');
+            wrapItem.id = 'fitem_id_feedbackboundaries_' + key;
+            label.id = `id_feedbackboundaries_${key}_label`;
+            label.setAttribute('for', `id_feedbackboundaries_${key}`);
+            inputBoundary.id = 'id_feedbackboundaries_' + key;
+            inputBoundary.name = `feedbackboundaries[${key}]`;
+            wrapItem.querySelector('.invalid-feedback').id = 'id_error_feedbackboundaries_' + key;
+        }
+    });
+
+    // Re-update devider.
+    dividerButtonEls.forEach((el, key) => {
+        el.dataset.after = key;
+        getString('insertfeedbackbefore', 'mod_quiz', {afterindex: key}).then(string => {
+            el.setAttribute('aria-label', string);
+            return true;
+        }).catch(() => {
+            return false;
+        });
+        // Add event for the new divider that was just loaded.
+        if (el.dataset.eventAttached === 'false') {
+            // Set a flag if the button already has an event added.
+            el.dataset.eventAttached = 'true';
+            el.addEventListener('click', e => {
+                e.preventDefault();
+                handleAddMoreFeedback(e, modalBody, contextId);
+            });
+        }
+    });
 };
 
 /**
@@ -378,6 +724,10 @@ const handleGradeItemClick = (e) => {
 
     if (link.dataset.actionEdit) {
         handleGradeItemEditStart(e);
+    }
+
+    if (link.dataset.actionAddFeedback) {
+        handleGradeItemAddFeedback(e);
     }
 };
 

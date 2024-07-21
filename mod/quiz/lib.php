@@ -41,6 +41,8 @@ use core_question\statistics\questions\all_calculated_for_qubaid_condition;
 use mod_quiz\local\override_cache;
 use mod_quiz\quiz_attempt;
 use mod_quiz\quiz_settings;
+use mod_quiz\form\overallfeedback_form;
+use mod_quiz\form\single_overallfeedback_form;
 
 require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
@@ -1751,13 +1753,17 @@ function quiz_pluginfile($course, $cm, $context, $filearea, $args, $forcedownloa
     }
 
     // The 'intro' area is served by pluginfile.php.
-    $fileareas = ['feedback'];
+    $fileareas = ['feedback', 'grade_item_feedback'];
     if (!in_array($filearea, $fileareas)) {
         return false;
     }
 
     $feedbackid = (int)array_shift($args);
-    if (!$feedback = $DB->get_record('quiz_feedback', ['id' => $feedbackid])) {
+    if ($filearea === 'feedback' && !$feedback = $DB->get_record('quiz_feedback', ['id' => $feedbackid])) {
+        return false;
+    }
+
+    if ($filearea === 'grade_item_feedback' && !$feedback = $DB->get_record('quiz_grade_item_feedbacks', ['id' => $feedbackid])) {
         return false;
     }
 
@@ -2494,6 +2500,57 @@ function mod_quiz_output_fragment_question_data(array $args): string {
     ob_start();
     $questionbank->display_question_list();
     return ob_get_clean();
+}
+
+/**
+ * Grade item data fragment to get the overall feedback html via ajax call.
+ *
+ * @param array $args Needed data to generate form.
+ * @return string Form html string.
+ */
+function mod_quiz_output_fragment_load_overall_feedback_data(array $args): string {
+    global $DB, $OUTPUT;
+    // Return if there is no args.
+    if (empty($args)) {
+        return '';
+    }
+
+    $quizid = clean_param($args['quizId'], PARAM_INT);
+    $gradeitemid = clean_param($args['gradeItemId'], PARAM_INT);
+    $quizobj = quiz_settings::create($quizid)->get_quiz();
+
+    $overallfeedbacks = $DB->get_records('quiz_grade_item_feedbacks',
+        ['quizid' => $quizid, 'gradeitemid' => $gradeitemid], 'maxgrade DESC');
+    $args['feedbacks'] = $overallfeedbacks;
+    $args['grade'] = $quizobj->grade;
+    $form = new overallfeedback_form(null, $args);
+    $form->set_data(['grade' => $quizobj->grade]);
+    $data = [
+        'body' => $form->render(),
+    ];
+
+    return $OUTPUT->render_from_template('mod_quiz/overallfeedback_modal', $data);
+}
+
+/**
+ * Single overall feedback form fragment.
+ *
+ * @param array $args Needed data to generate form.
+ * @return string Form html string.
+ */
+function mod_quiz_output_fragment_load_overall_feedback_form(array $args): string {
+    // Return if there is no args.
+    if (empty($args)) {
+        return '';
+    }
+
+    $afterno = clean_param($args['after'], PARAM_INT);
+    $editornumber = clean_param($args['no'], PARAM_INT);
+    $gradeitemid = clean_param($args['gradeitemid'], PARAM_INT);
+    $singleform = new single_overallfeedback_form(null, ['after' => $afterno, 'context' => $args['context'],
+        'editorno' => $editornumber, 'gradeitemid' => $gradeitemid]);
+
+    return $singleform->render();
 }
 
 /**

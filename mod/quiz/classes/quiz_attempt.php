@@ -672,6 +672,18 @@ class quiz_attempt {
     }
 
     /**
+     * Get the overall feedback for each grade item corresponding to a particular mark.
+     *
+     * @param int $gradeitemid a grade item id to get feedback.
+     * @param float $grade a particular grade.
+     * @return string the feedback text.
+     */
+    public function get_overall_feedback_for_grade_item(int $gradeitemid, float $grade): string {
+        return quiz_feedback_for_gradeitem($grade, $gradeitemid, $this->get_quiz(),
+            $this->quizobj->get_context());
+    }
+
+    /**
      * Wrapper round the has_capability function that automatically passes in the quiz context.
      *
      * @param string $capability the name of the capability to check. For example mod/forum:view.

@@ -218,6 +218,10 @@ class attempt_summary_information implements renderable, named_templatable {
         // Grades for extra grade items, if any.
         foreach ($attemptobj->get_grade_item_totals() as $gradeitemid => $gradeoutof) {
             $this->add_item('marks' . $gradeitemid, format_string($gradeoutof->name), $gradeoutof);
+            $gradeperitem = ($gradeoutof->grade / $gradeoutof->maxgrade) * $gradeoutof->quiz->grade;
+            $overallfeedback = $attemptobj->get_overall_feedback_for_grade_item($gradeitemid, $gradeperitem);
+            $this->add_item('feedbacks' . $gradeitemid, get_string('overallfeedback_for_n', 'mod_quiz',
+                format_string($gradeoutof->name)), $overallfeedback);
         }
 
         // Show raw marks only if they are different from the grade.

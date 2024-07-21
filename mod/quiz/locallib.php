@@ -608,6 +608,28 @@ function quiz_feedback_record_for_grade($grade, $quiz) {
 }
 
 /**
+ * Get the feedback list for every grade items on this quiz.
+ *
+ * @param float $grade a grade on this quiz.
+ * @param int $gradeitemid a grade item id to get feedback.
+ * @param stdClass $quiz the quiz settings.
+ * @return false|stdClass the record object or empty if there is no feedback for the given grade and grade item.
+ * @since  Moodle 4.5
+ */
+function quiz_feedback_record_for_gradeitem(float $grade, int $gradeitemid, stdClass $quiz): false|stdClass {
+    global $DB;
+
+    // With CBM etc, it is possible to get -ve grades, which would then not match
+    // any feedback. Therefore, we replace -ve grades with 0.
+    $grade = max($grade, 0);
+
+    $feedback = $DB->get_record_select('quiz_grade_item_feedbacks',
+        'quizid = ? AND gradeitemid = ? AND mingrade <= ? AND ? < maxgrade', [$quiz->id, $gradeitemid, $grade, $grade]);
+
+    return $feedback;
+}
+
+/**
  * Get the feedback text that should be show to a student who
  * got this grade on this quiz. The feedback is processed ready for diplay.
  *
@@ -633,6 +655,38 @@ function quiz_feedback_for_grade($grade, $quiz, $context) {
     $formatoptions->noclean = true;
     $feedbacktext = file_rewrite_pluginfile_urls($feedback->feedbacktext, 'pluginfile.php',
             $context->id, 'mod_quiz', 'feedback', $feedback->id);
+    $feedbacktext = format_text($feedbacktext, $feedback->feedbacktextformat, $formatoptions);
+
+    return $feedbacktext;
+}
+
+/**
+ * Get the feedback text list for every grade items that should be shown to a student who
+ * got this grade on this quiz. The feedback is processed ready for display.
+ *
+ * @param float $grade a grade on this quiz.
+ * @param int $gradeitemid a grade item id to get feedback.
+ * @param stdClass $quiz the quiz settings.
+ * @param context_module $context the quiz context.
+ * @return string The feedback for grade item in the current quiz.
+ */
+function quiz_feedback_for_gradeitem(float $grade, int $gradeitemid, stdClass $quiz, context_module $context): string {
+
+    if (is_null($grade)) {
+        return '';
+    }
+
+    $feedback = quiz_feedback_record_for_gradeitem($grade, $gradeitemid, $quiz);
+
+    if (empty($feedback)) {
+        return '';
+    }
+
+    // Clean the text, ready for display.
+    $formatoptions = new stdClass();
+    $formatoptions->noclean = true;
+    $feedbacktext = file_rewrite_pluginfile_urls($feedback->feedbacktext, 'pluginfile.php',
+        $context->id, 'mod_quiz', 'grade_item_feedback', $feedback->id);
     $feedbacktext = format_text($feedbacktext, $feedback->feedbacktextformat, $formatoptions);
 
     return $feedbacktext;
