@@ -121,7 +121,7 @@ abstract class report_base {
         // Conditionally add the group JS if we have groups enabled.
         if (groups_get_activity_groupmode($cm)) {
             $baseurl = new \moodle_url('/mod/quiz/report.php', ['id' => $params->cmid]);
-            $PAGE->requires->js_call_amd('core_course/actionbar/group', 'init', [$baseurl->out(false), $params]);
+            $PAGE->requires->js_call_amd('core_course/actionbar/group', 'init', [$baseurl->out(false), $params->cmid, $params]);
         }
         $actionbar = new \mod_quiz\output\quiz_navigation_bar(\context_module::instance($cm->id), $reportmode,
             $options, $url, $cm);

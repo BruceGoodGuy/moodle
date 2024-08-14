@@ -105,7 +105,8 @@ class quiz_navigation_bar implements templatable, renderable {
         // Set up data for group selector.
         if (groups_get_activity_groupmode($this->cm)) {
             $actionbarrenderer = $PAGE->get_renderer('core_course', 'actionbar');
-            $data['groupselector'] = $actionbarrenderer->render(new \core_course\output\actionbar\group_selector($course, $cm));
+            $data['groupselector'] = $actionbarrenderer->render(
+                new \core_course\output\actionbar\group_selector(null, $this->context));
         }
 
         if (!is_null($this->options)) {
