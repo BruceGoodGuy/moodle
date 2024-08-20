@@ -7,3 +7,8 @@ notes:
         - Add the `core_group\external\get_groups_for_selector_test()` unit test class to ensure that
         the get_groups_for_selector() method works correctly.
       type: improved
+  core:
+    - message: >-
+        - The `core\output\name_filter_bar` renderer class has been created to replace `core_grades::initials_selector`  to ensure
+        it is available for use in other components.
+      type: improved
