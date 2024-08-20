@@ -11,6 +11,9 @@ notes:
     - message: >-
         - The `core\output\name_filter_bar` renderer class has been created to replace `core_grades::initials_selector`  to ensure
         it is available for use in other components.
+        - The get_users_search_sql() method will now accept two additional parameters: $allowcustom and $custommappings.
+          - When $allowcustom is true, it enables searching for users by their custom profile fields.
+          - In cases $allowcustom is true, we should use the $custommappings fields to maintain the same alias in the query.
       type: improved
   core_grades:
     - message: >-
@@ -20,4 +23,7 @@ notes:
     - message: >-
         - The `mod_quiz\output\action_selector` has been created to take responsibility for rendering the action selector,
         (a component of the quiz navigation bar), enabling users to switch between quiz reports.
+        - The service `mod_quiz\get_users_in_report` has been created to handle user search actions in the quiz report.
+        - Add the `mod_quiz\external\get_users_in_report_test()` unit test class to ensure that the
+          get_users_in_report_test() method works correctly.
       type: improved
