@@ -12,3 +12,12 @@ notes:
         - The `core\output\name_filter_bar` renderer class has been created to replace `core_grades::initials_selector`  to ensure
         it is available for use in other components.
       type: improved
+  core_grades:
+    - message: >-
+        - The `core_grades\general_action_bar` will now use the template `core/navigation_action_bar`
+        instead of `core_grades/general_action_bar`.
+  mod_quiz:
+    - message: >-
+        - The `mod_quiz\output\action_selector` has been created to take responsibility for rendering the action selector,
+        (a component of the quiz navigation bar), enabling users to switch between quiz reports.
+      type: improved
