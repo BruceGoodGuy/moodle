@@ -14,6 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 import GroupSearch from 'core_group/comboboxsearch/group';
+import {groupFetch} from 'core_group/comboboxsearch/repository';
 
 /**
  * Allow the user to search for groups in the action bar.
@@ -25,6 +26,7 @@ import GroupSearch from 'core_group/comboboxsearch/group';
 export default class Group extends GroupSearch {
 
     baseUrl;
+    static extraParams;
 
     /**
      * Construct the class.
@@ -42,9 +44,11 @@ export default class Group extends GroupSearch {
      *
      * @param {string} baseUrl The base URL for the page.
      * @param {int|null} cmid ID of the course module initiating the group search (optional).
+     * @param {Object} extraParams Extra parameters.
      * @returns {Group}
      */
-    static init(baseUrl, cmid = null) {
+    static init(baseUrl, cmid = null, extraParams) {
+        Group.extraParams = extraParams;
         return new Group(baseUrl, cmid);
     }
 
@@ -58,7 +62,22 @@ export default class Group extends GroupSearch {
         const url = new URL(this.baseUrl);
         url.searchParams.set('groupsearchvalue', this.getSearchTerm());
         url.searchParams.set('group', groupID);
+        for (let param in Group.extraParams.params) {
+            if (param === 'group') {
+                continue;
+            }
+            url.searchParams.set(param, Group.extraParams.params[param]);
+        }
 
         return url.toString();
+    }
+
+    /**
+     * Get the data we will be searching against in this component.
+     *
+     * @returns {Promise<*>}
+     */
+    async fetchDataset() {
+        return await groupFetch(this.courseID, Group?.extraParams?.cmid ?? null).then((r) => r.groups);
     }
 }

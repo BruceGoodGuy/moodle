@@ -1,0 +1,9 @@
+issueNumber: MDL-81096
+notes:
+  core_group:
+    - message: >-
+        - The `core_course/actionbar/group/init()` now receives an optional parameter, `extraParams`,
+        to ensure all other parameters in the URL are maintained after the user changes the group.
+        - Add the `core_group\external\get_groups_for_selector_test()` unit test class to ensure that
+        the get_groups_for_selector() method works correctly.
+      type: improved
