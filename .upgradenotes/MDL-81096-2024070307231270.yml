@@ -19,6 +19,11 @@ notes:
     - message: >-
         - The `core_grades\general_action_bar` will now use the template `core/navigation_action_bar`
         instead of `core_grades/general_action_bar`.
+        - The `core_grades::print_grade_page_head` method will now use the `render()` method to render the action bar
+        instead of the `render_action_bar()` method.
+        - The `core_grades::initials_selector` method has been deprecated; use `\core\output\name_filter_bar` instead.
+        - The `core_grades/searchwidget/initials` file has been relocated to `core/searchwidget/initials` to ensure
+        it is available for use in other components.
   mod_quiz:
     - message: >-
         - The `mod_quiz\output\action_selector` has been created to take responsibility for rendering the action selector,
@@ -26,4 +31,15 @@ notes:
         - The service `mod_quiz\get_users_in_report` has been created to handle user search actions in the quiz report.
         - Add the `mod_quiz\external\get_users_in_report_test()` unit test class to ensure that the
           get_users_in_report_test() method works correctly.
+        - The `mod_quiz\attempts_report_options` has a new method `setup_from_params_array` to set necessary dat to the $option object.
+        - The `mod_quiz\local\reports::report_base` class has been added several methods:
+            - The method `print_action_bar` will be responsible for rendering the entire quiz navigation bar in the report.
+            - The method `setup_report_data` allows retrieval of necessary data for the report, such as option objects and table objects.
+            - The method `has_permission` checks whether the user has permission to access this report.
+      type: improved
+  gradereport_grader:
+    - message: >-
+        - The `gradereport_grader/user` class has been deprecated; use `core/searchwidget/user` instead.
+        - The `gradereport_grader::action_bar` class now uses the template `core/action_bar`
+        instead of `gradereport_grader/action_bar`.
       type: improved
