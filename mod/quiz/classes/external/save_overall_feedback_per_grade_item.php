@@ -92,6 +92,8 @@ class save_overall_feedback_per_grade_item extends external_api {
         }
 
         // Put the 100% boundary data back into the form.
+        // Set the boundary default value for the first boundary.
+        $firstdata->boundary = $grade + 1;
         array_unshift($data, $firstdata);
         $formdata = $data;
 

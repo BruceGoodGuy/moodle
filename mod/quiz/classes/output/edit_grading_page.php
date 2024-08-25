@@ -85,15 +85,19 @@ class edit_grading_page implements renderable, templatable {
 
             if (count($gradeitemsfeedback) > 0) {
                 if (count($gradeitemsfeedback) === 1) {
-                    $overallfeedbacktext = get_string('editoverallfeedback1level', 'quiz');
+                    $overallfeedbacktext = get_string('editoverallfeedback1level', 'quiz', 1);
+                    $leveltext = get_string('overallfeedback1level', 'quiz', 1);
                 } else {
                     $overallfeedbacktext = get_string('editoverallfeedbacknlevels', 'quiz', count($gradeitemsfeedback));
+                    $leveltext = get_string('overallfeedbacknlevels', 'quiz', count($gradeitemsfeedback));
                 }
                 $overallfeedbacklabel = $OUTPUT->pix_icon('t/edit', $overallfeedbacktext, 'core') .
                     $overallfeedbacktext;
+                $gradeitem->totaloverallfeedback = $leveltext;
             } else {
                 $overallfeedbacklabel = $OUTPUT->pix_icon('t/add', get_string('addoverallfeedback', 'quiz'), 'core') .
                     get_string('addoverallfeedback', 'quiz');
+                $gradeitem->totaloverallfeedback = '-';
             }
 
             $gradeitem->overallfeedbackurl = \html_writer::link($url,

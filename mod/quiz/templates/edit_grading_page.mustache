@@ -39,7 +39,8 @@
                 "name": "Reading & writing",
                 "displayname": "Reading &amp; writing",
                 "summarks": "10.00",
-                "isused": true
+                "isused": true,
+                "totaloverallfeedback": 1
             }
         ],
         "hasslots": true,
@@ -94,6 +95,7 @@
                 <tr>
                     <th scope="col">{{#str}} gradeitem, grades {{/str}}</th>
                     <th scope="col">{{#str}} totalmarks, quiz {{/str}}</th>
+                    <th scope="col">{{#str}} overallfeedback, quiz {{/str}}</th>
                     <th scope="col">{{#str}} actions {{/str}}</th>
                 </tr>
             </thead>
@@ -113,6 +115,9 @@
                         </th>
                         <td class="align-middle text-end py-1">
                             {{summarks}}
+                        </td>
+                        <td class="align-middle text-end py-1 total-overallfeedback">
+                            {{totaloverallfeedback}}
                         </td>
                         <td class="align-middle text-center py-1">
                             {{>mod_quiz/cellmenu}}

@@ -27,7 +27,7 @@ import {addIconToContainer} from 'core/loadingicon';
 import Notification from 'core/notification';
 import Pending from 'core/pending';
 import {get_string as getString} from 'core/str';
-import {render as renderTemplate, replaceNode, runTemplateJS, renderPix} from 'core/templates';
+import * as Templates from 'core/templates';
 import Modal from 'core/modal';
 import {prefetchStrings} from 'core/prefetch';
 import Fragment from 'core/fragment';
@@ -186,7 +186,7 @@ const handleGradeItemAddFeedback = async(e) => {
     const gradeItemId = tableRow.dataset.quizGradeItemId;
     const rawName = tableRow.querySelector('th span.inplaceeditable').dataset.rawName;
 
-    // Crate a simple modal.
+    // Create a modal instance contains the overall feedbacks.
     modal = await Modal.create({
         title: getString('overallfeedback_for', 'mod_quiz', rawName),
         body: '',
@@ -199,38 +199,36 @@ const handleGradeItemAddFeedback = async(e) => {
     });
 
     const modalBody = modal.getBody()[0];
-    // Set quiz ID and grade item ID for later actions.
+    // Set the quiz ID and grade item ID in the modal body to allow retrieval later.
     modalBody.dataset.quizid = quizId;
     modalBody.dataset.gradeItemId = gradeItemId;
-    // Start loading icon.
-    await addIconToContainer(modalBody, pending);
+    // Show the loading icon.
+    addIconToContainer(modalBody, pending);
     // Load existing overall feedback based on the specific grade item ID.
     // If no feedback exists, display a sample feedback with a boundary of 100%.
-    const fragment = Fragment.loadFragment('mod_quiz', 'load_overall_feedback_data', contextId, {
+    Fragment.loadFragment('mod_quiz', 'load_overall_feedback_data', contextId, {
         quizId,
         gradeItemId,
-    });
-
-    fragment.done(function(html, js) {
-        // Set to body.
-        // modalBody.innerHTML = html;
+    }).done(function(html, js) {
+        // Set the overall feedback form data into the modal body.
         modal.setBody(html);
-        // Need to wait util html already appended into DOM.
+        // Wait until the HTML is fully appended to the DOM before running the JavaScript code.
         setTimeout(() => {
-            // Run js.
-            runTemplateJS(js);
+            Templates.runTemplateJS(js);
         }, 500);
-        // Enable submit button.
+        // Enable the footer buttons to allow user interaction with them.
         updateStatusFooterButton(false);
         // Add event for the divider.
+        // After the template loads, events need to be added to all dividers to allow users to add more overall feedback.
         modalBody.querySelectorAll('.divider button.feedbackadd-button').forEach(addFeedback => {
+            // Set a flag to mark that the event has already been attached.
             addFeedback.dataset.eventAttached = 'true';
             addFeedback.addEventListener('click', e => {
                 e.preventDefault();
                 handleAddMoreFeedback(e, modalBody, contextId);
             });
         });
-        // Add events for every button in the footer.
+        // The form's submit button will be handled by JavaScript, so we need to add an event to manage it.
         modalBody.querySelectorAll('.modal-footer input[type="submit"]').forEach(input => {
             input.addEventListener('click', handleSubmitModal);
         });
@@ -275,7 +273,6 @@ const updateStatusFooterButton = (status) => {
 
 /**
  * Validate the form data and save the feedback if it's valid.
- *
  */
 const saveFeedback = async() => {
     // Browse through every element in the modal form and collect them into an object.
@@ -301,11 +298,14 @@ const saveFeedback = async() => {
         if (errors.length === 0) {
             // Update icon and title for the menu-item.
             // Since the page does not reload, we must change it manually.
-            const addOverallFeedbackMenu = document.querySelector(SELECTORS.gradeItemList +
-                ` tr[data-quiz-grade-item-id="${gradeItemId}"] .moodle-actionmenu a.dropdown-item[data-action-add-feedback]`);
-            const {key, title} = await getIconFeedback(parseInt(result.total));
-            const icon = await renderPix(key, 'core', title);
+            const gradeItemRow = document.querySelector(SELECTORS.gradeItemList +
+                ` tr[data-quiz-grade-item-id="${gradeItemId}"]`);
+            const addOverallFeedbackMenu = gradeItemRow
+                .querySelector('.moodle-actionmenu a.dropdown-item[data-action-add-feedback]');
+            const {key, title, titleLevelFeedback} = await getIconFeedback(parseInt(result.total));
+            const icon = await Templates.renderPix(key, 'core', title);
             addOverallFeedbackMenu.innerHTML = icon + title;
+            gradeItemRow.querySelector('td.total-overallfeedback').innerText = titleLevelFeedback;
             // Must destroy it to allow the editor JS to run when we reopen the modal.
             modal.destroy();
         }
@@ -324,21 +324,25 @@ const saveFeedback = async() => {
  */
 const getIconFeedback = async(totalFeedback) => {
     let title = '';
+    let titleLevelFeedback = '';
     let key = 't/edit';
     switch (totalFeedback) {
         case 0:
             title = await getString('addoverallfeedback', 'quiz');
+            titleLevelFeedback = '-';
             key = 't/add';
             break;
         case 1:
             title = await getString('editoverallfeedback1level', 'quiz');
+            titleLevelFeedback = await getString('overallfeedback1level', 'quiz', 1);
             break;
         default:
             title = await getString('editoverallfeedbacknlevels', 'quiz', totalFeedback);
+            titleLevelFeedback = await getString('overallfeedbacknlevels', 'quiz', totalFeedback);
             break;
     }
 
-    return {key, title};
+    return {key, title, titleLevelFeedback};
 };
 
 /**
@@ -449,15 +453,15 @@ const handleAddMoreFeedback = async(e, modalBody, contextId) => {
     const {after} = target.dataset;
     const numberOfEditors = modalBody.querySelectorAll('textarea[name^=feedbacktext]').length;
     const gradeItemId = modal.getBody()[0].dataset.gradeItemId;
-    const fragment = Fragment.loadFragment('mod_quiz', 'load_overall_feedback_form', contextId, {
+    const divider = modalBody.querySelector(`.modal-body .divider button[data-after="${after}"]`)
+        .closest('.divider');
+    Fragment.loadFragment('mod_quiz', 'load_overall_feedback_form', contextId, {
         after,
         no: numberOfEditors,
         gradeitemid: parseInt(gradeItemId),
-    });
-    const divider = modalBody.querySelector(`.modal-body .divider button[data-after="${after}"]`).closest('.divider');
-    fragment.done(function(html, js) {
+    }).done(function(html, js) {
         divider.insertAdjacentHTML('afterend', html);
-        runTemplateJS(js);
+        Templates.runTemplateJS(js);
         recalculateFeedbackIndex(modalBody, after, contextId);
     });
 };
@@ -627,8 +631,8 @@ const handleGradeItemKeyDown = (e) => {
  * @returns {Promise<void>} a promise that will resolve when the page is updated.
  */
 const reRenderPage = (editGradingPageData) =>
-    renderTemplate('mod_quiz/edit_grading_page', editGradingPageData)
-        .then((html, js) => replaceNode(document.querySelector(SELECTORS.editingPageContents), html, js || ''));
+    Templates.render('mod_quiz/edit_grading_page', editGradingPageData)
+        .then((html, js) => Templates.replaceNode(document.querySelector(SELECTORS.editingPageContents), html, js || ''));
 
 /**
  * Handle key up in the editable.
