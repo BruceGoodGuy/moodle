@@ -16,6 +16,7 @@
 
 namespace core_course\output\actionbar;
 
+use core\exception\moodle_exception;
 use core\output\comboboxsearch;
 use stdClass;
 

@@ -17,6 +17,8 @@
 namespace mod_quiz\output;
 
 use core\output\comboboxsearch;
+use core_course\output\actionbar\group_selector;
+use core_course\output\actionbar\initials_selector;
 use mod_quiz\local\reports\attempts_report_options;
 use moodle_url;
 use templatable;
@@ -82,7 +84,6 @@ class quiz_navigation_bar implements templatable, renderable {
         } else {
             $cm = $this->options->cm;
         }
-        $cmid = $this->context->instanceid;
         $course = $cm->get_course();
         // Get the data used to output the general navigation selector.
         $generalnavselector = new action_selector($this->context);
@@ -95,19 +96,38 @@ class quiz_navigation_bar implements templatable, renderable {
             $filter = new \stdClass();
             $filter->usersearch = $this->usersearch;
             $filter->userid = $this->userid;
-            $initialselector = new \core\output\name_filter_bar($course,  $this->context, '/mod/quiz/report.php',
-                $urlparam, $filter, $this->reportmode, $cmid);
+            $additionalparams = [];
+
+            if ($this->userid > 0) {
+                $additionalparams['gpr_userid'] = $this->userid;
+            } else if (!empty($this->usersearch)) {
+                $additionalparams['gpr_search'] = $this->usersearch;
+            }
+
             $firstnameinitial = $SESSION->{$this->reportmode . 'report'}["filterfirstname-{$this->context->id}"] ?? '';
             $lastnameinitial  = $SESSION->{$this->reportmode . 'report'}["filtersurname-{$this->context->id}"] ?? '';
+            $initialselector = new initials_selector(
+                course: $course,
+                targeturl: '/mod/quiz/report.php',
+                firstinitial: $firstnameinitial,
+                lastinitial: $lastnameinitial,
+                additionalparams: [...$additionalparams, ...$urlparam],
+            );
             $data['initialselector'] = $initialselector->export_for_template($output);
         }
 
         // Set up data for group selector.
+//        if (groups_get_activity_groupmode($this->cm)) {
+//            $actionbarrenderer = $PAGE->get_renderer('core_course', 'actionbar');
+//            $data['groupselector'] = $actionbarrenderer->render(
+//                new \core_course\output\actionbar\group_selector(null, $this->context));
+//        }
+
         if (groups_get_activity_groupmode($this->cm)) {
-            $actionbarrenderer = $PAGE->get_renderer('core_course', 'actionbar');
-            $data['groupselector'] = $actionbarrenderer->render(
-                new \core_course\output\actionbar\group_selector(null, $this->context));
+            $gs = new group_selector($this->context);
+            $data['groupselector'] = $gs->export_for_template($output);
         }
+
 
         if (!is_null($this->options)) {
             $courseid = $cm->course;

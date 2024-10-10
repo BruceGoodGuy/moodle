@@ -75,7 +75,7 @@ Feature: Basic use of the Grades report
 
     # Verify that the right columns are visible
     And I should see "Q. 1"
-    And I should see "Q. 2a"
+    And I should see "Q. 2a"`
     And I should not see "Q. 3"
 
     # Check student1's grade
@@ -107,7 +107,7 @@ Feature: Basic use of the Grades report
     And I should see "100.00" in the "S2 Student2" "table_row"
 
     # Verify groups are displayed correctly.
-    And I click on "All participants" in the "group" search widget
+    And I click on "All participants" in the "group" search combo box
     And I wait until "English" "option_role" exists
     And I click on "English" in the "group" search widget
     And I should see "Number of students in group 'English' achieving grade ranges"
@@ -170,7 +170,7 @@ Feature: Basic use of the Grades report
   Scenario: A teacher can filter the user attempt by group in the grades report.
     When I am on the "Quiz 1" "quiz activity" page logged in as teacher1
     And I navigate to "Results" in current page administration
-    And I click on "All participants" in the "group" search widget
+    And I click on "All participants" in the "Search groups" search combo box
     And I wait until "Group 2" "option_role" exists
     And I click on "Group 2" in the "group" search widget
     And the following should exist in the "attempts" table:
